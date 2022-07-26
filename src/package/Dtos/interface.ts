@@ -167,17 +167,18 @@ export interface IMessageAudio {
     pushName: string,
     message: {
       audioMessage: {
-        "url": string,
-        "mimetype": string,
-        "fileSha256": string,
-        "fileLength": string,
-        "seconds": number,
-        "ptt": boolean,
-        "mediaKey": string,
-        "fileEncSha256": string,
-        "directPath": string,
-        "mediaKeyTimestamp": string,
-        "waveform": string
+        url: string,
+        mimetype: string,
+        fileSha256: string,
+        caption?: string,
+        fileLength: string,
+        seconds: number,
+        ptt: boolean,
+        mediaKey: string,
+        fileEncSha256: string,
+        directPath: string,
+        mediaKeyTimestamp: string,
+        waveform: string
       }
       messageContextInfo: {
         deviceListMetadata: {
