@@ -1,18 +1,21 @@
-import makeWASocket, { Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig } from "@adiwajshing/baileys";
+import makeWASocket, { Contact, DisconnectReason, MessageUpsertType, proto, useMultiFileAuthState, UserFacingSocketConfig, WAMessage } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
 import { AndromedaProps, IAndromeda, IBaileys, IExistenceOnWhatsApp } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
+import { AndromedaStorage } from "./andromeda_storage";
 
 const logger = MAINLOGGER.child({ });
 logger.level = 'silent';
 
+const normalPrefix = '@s.whatsapp.net';
+
 export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndromeda> => {
 
   let IS_CONNECTED = false;
-
+  const StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage, initializerProps.sessionName);
   const { state, saveCreds } = await useMultiFileAuthState(`andromedaSessions_${initializerProps.sessionName}`);
 
   const presetToSocket: UserFacingSocketConfig = {
@@ -41,6 +44,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       if(initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
 
       initializerProps.onMessage(message);
+      StorageInitializer.saveMessageInStorage(message);
 
     }
 
@@ -88,10 +92,25 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   
         resolve({
 
+          async replyMessage(number: string, content: string, quotedId: string): Promise<proto.WebMessageInfo> {
+
+            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
+
+            const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
+
+            if(typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
+
+            return sendReply;
+
+          },
+ 
           async logOut (): Promise<boolean> {
 
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
+            StorageInitializer.removeStorageFile();
             await socket.logout()
 
             return true;
@@ -118,22 +137,12 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             }
         
           },
-        
-          async logOutInstance (): Promise<boolean> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            await socket.logout();
-        
-            return true;
-        
-          },
           
           async blockContact (number: string): Promise<boolean> {
         
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
         
-            await socket.updateBlockStatus(`${number}@s.whatsapp.net`, 'block');
+            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'block');
         
             return true;
           
@@ -143,7 +152,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
             
-            await socket.updateBlockStatus(`${number}@s.whatsapp.net`, 'unblock');
+            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'unblock');
             
             return true;
           
@@ -186,7 +195,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
         
-            const sendMessage = await socket.sendMessage(`${number}@s.whatsapp.net`, { text: content });
+            const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
         
             if(typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
         

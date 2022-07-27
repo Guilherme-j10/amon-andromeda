@@ -1,0 +1,13 @@
+version: '3'
+services:
+  database: 
+    image: mongo:4.4.6
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=6u1lh3rm3
+    volumes:
+      - mongoVolum:/data/db
+    ports:
+      - 27017:27017
+volumes:
+  mongoVolum:
