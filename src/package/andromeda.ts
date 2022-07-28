@@ -1,4 +1,4 @@
-import makeWASocket, { Contact, DisconnectReason, MessageUpsertType, proto, useMultiFileAuthState, UserFacingSocketConfig, WAMessage } from "@adiwajshing/baileys";
+import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
 import { AndromedaProps, IAndromeda, IBaileys, IExistenceOnWhatsApp } from "./Dtos/interface";
 import MAINLOGGER from './logger';
@@ -6,6 +6,7 @@ import Qrcode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 import { AndromedaStorage } from "./andromeda_storage";
+import ffmpeg from 'ffmpeg';
 
 const logger = MAINLOGGER.child({ });
 logger.level = 'silent';
@@ -35,7 +36,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   socket.ev.on('messages.upsert', async (message) => {
 
-    if(message.type === 'notify'){  
+    if(message.type === 'notify'){
 
       if(initializerProps.IgnoreServer_ACK && message.messages[0].status === 2) return;
 
@@ -48,7 +49,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
     }
 
-  }) 
+  });
 
   return new Promise((resolve) => {
 
@@ -102,7 +103,31 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
 
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
+
             return sendReply;
+
+          },
+
+          async sendGifOrVideoMessage(mediaPath: string, number: string, content?: string, isGif?: boolean): Promise<proto.WebMessageInfo> {
+
+            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const optionsMedia: AnyMessageContent = {
+              video: fs.readFileSync(mediaPath)
+            }
+
+            if(isGif) optionsMedia.gifPlayback = true;
+
+            if(content) optionsMedia.caption = content;
+
+            const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
+
+            if(typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
+
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+
+            return sendMediaMessage;
 
           },
  
@@ -114,6 +139,25 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             await socket.logout()
 
             return true;
+
+          },
+
+          async sendAudioMedia(audioPath: string, number: string): Promise<proto.WebMessageInfo> {
+
+            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
+              audio: {
+                url: audioPath
+              },
+              ptt: false
+            });
+
+            if(typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
+
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendAudioMedia] });
+
+            return sendAudioMedia;
 
           },
 
@@ -137,6 +181,28 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             }
         
           },
+
+          async sendImage(imagePath: string, number: string, content?: string): Promise<proto.WebMessageInfo> {
+
+            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const optionsSenMessage: AnyMessageContent = {
+              image: {
+                url: imagePath
+              }
+            };  
+
+            if(content) optionsSenMessage.caption = content;
+
+            const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
+
+            if(typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
+
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
+
+            return sendImage;
+
+          },  
           
           async blockContact (number: string): Promise<boolean> {
         
@@ -198,6 +264,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
         
             if(typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
+
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
         
             return sendMessage;
         

@@ -32,6 +32,9 @@ export interface IExistenceOnWhatsApp {
 
 export interface IAndromeda {
   verifyExistenceNumber: (number: string) => Promise<IExistenceOnWhatsApp>,
+  sendGifOrVideoMessage: (mediaPath: string, number: string, content?: string, isGif?: boolean) => Promise<proto.WebMessageInfo>,
+  sendImage: (imagePath: string, number: string, content?: string) => Promise<proto.WebMessageInfo>,
+  sendAudioMedia: (audioPath: string, number: string) => Promise<proto.WebMessageInfo>,
   logOut: () => Promise<boolean>,
   getDeviceInformation: () => Contact,
   blockContact: (number: string) => Promise<boolean>,
