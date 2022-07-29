@@ -2,7 +2,7 @@ import knex, { Knex } from "knex";
 import { AndromedaStorageConnection } from "./Dtos/interface";
 import fs from 'fs';
 import path from 'path';
-import { MessageUpsertType, proto, WAMessage } from "@adiwajshing/baileys";
+import { MessageUpsertType, proto, WAMessage, getDevice } from "@adiwajshing/baileys";
 
 export class AndromedaStorage {
 
@@ -50,6 +50,7 @@ export class AndromedaStorage {
         return this.Connection.schema.createTable('andromeda_storage', (table) => {
           table.increments('id').primary();
           table.string('message_id', 255).notNullable();
+          table.string('remoteJid', 255).notNullable();
           table.text('MessageStructure', 'longtext').notNullable();
         })
 
@@ -62,6 +63,74 @@ export class AndromedaStorage {
   removeStorageFile() {
 
     fs.rmSync(path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`), { force: true, recursive: true });
+
+  }
+
+  async getTypeDevice (numberId: string): Promise<string> {
+
+    const dataMessages = JSON.parse(
+      fs.readFileSync(
+        path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`)
+      ) as unknown as string
+    ) as unknown as { id: string, message: proto.WebMessageInfo }[];
+
+    let MessageFound = '';
+      
+    let TypeDeviceOcorrence = { web: 0, android: 0, ios: 0 };
+
+    for(let content of dataMessages) {
+
+      if(content.message.key.remoteJid === numberId) {
+
+        const typefound = getDevice(content.message.key.id as string);
+        TypeDeviceOcorrence[typefound]++;
+
+      }
+
+    }
+
+    if(TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
+
+      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web'; 
+
+      return MessageFound;
+
+    }
+
+    const result = await this.Connection('andromeda_storage').select('MessageStructure').where({ remoteJid: numberId })
+
+    if(!result.length) {
+
+      if(MessageFound === 'web') MessageFound = 'android';
+
+      return !Array.from(MessageFound).length ? 'android' : MessageFound;
+
+    };
+
+    for(let msg of result) {
+
+      let message = JSON.parse(msg) as unknown as proto.WebMessageInfo;
+
+      const device = getDevice(message.key.id as string);
+      TypeDeviceOcorrence[device]++;
+
+    }
+
+    if(!TypeDeviceOcorrence.android || !TypeDeviceOcorrence.ios) {
+
+      MessageFound = 'android';
+
+      return MessageFound;
+
+    }
+
+    if(TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
+
+      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web'; 
+
+    }
+
+    return MessageFound;
 
   }
 
@@ -83,6 +152,7 @@ export class AndromedaStorage {
 
       dataRows.push({
         message_id: message.id,
+        remoteJib: message.message.key.remoteJid,
         MessageStructure: JSON.stringify(message.message)
       });
 

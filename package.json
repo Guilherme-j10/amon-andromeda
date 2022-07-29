@@ -15,7 +15,6 @@
   "dependencies": {
     "@adiwajshing/baileys": "^4.3.0",
     "@hapi/boom": "^10.0.0",
-    "ffmpeg": "^0.0.4",
     "knex": "^2.2.0",
     "link-preview-js": "^3.0.0",
     "mysql2": "^2.3.3",

@@ -6,7 +6,6 @@ import Qrcode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 import { AndromedaStorage } from "./andromeda_storage";
-import ffmpeg from 'ffmpeg';
 
 const logger = MAINLOGGER.child({ });
 logger.level = 'silent';
@@ -142,15 +141,18 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
           },
 
-          async sendAudioMedia(audioPath: string, number: string): Promise<proto.WebMessageInfo> {
+          async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean): Promise<proto.WebMessageInfo> {
 
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
 
             const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
               audio: {
                 url: audioPath
               },
-              ptt: false
+              ptt: isPtt ? isPtt : false,
+              mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
             });
 
             if(typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
