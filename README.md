@@ -2,7 +2,7 @@
 
 Amon-andromeda is a package based on Baileys. Made to be an easy abstraction of using Baileys, with simpler and easier methods to use, minimal configuration and quick to start. Amon-andromeda has a custom storage, unlike Baileys, which has its own, but it's in memory, which harms its use as its message base grows. we use a different approach, saving the data in a .JSON file, and when it reaches a certain limit we migrate the data from a single time to a database in mysql, storage is an important part of the code because with it we can consult previous messages which allows the use of some methods of Baileys.
 
-**Verifiquei o repositiorio do Baileys [here](https://github.com/adiwajshing/Baileys).**
+**Check Baileys repository [here](https://github.com/adiwajshing/Baileys).**
 
 ## Install
 
