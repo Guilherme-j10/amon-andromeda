@@ -10,25 +10,37 @@ export class AndromedaStorage {
   private CounterInsters: number;
   private ApplicationName: string;
   private LimitMemoryStorage: number;
+  private basePath: string;
 
-  constructor (ConnectionProps: AndromedaStorageConnection, ApplicationName: string) {
+  constructor (ConnectionProps: AndromedaStorageConnection, settings: { sessionName: string, pathStorage: string }) {
 
     this.LimitMemoryStorage = 500;
-    this.ApplicationName = ApplicationName;
+    this.ApplicationName = settings.sessionName;
+    this.basePath = settings.pathStorage;
 
-    if(fs.existsSync(path.resolve(__dirname, '.', 'storage', `${ApplicationName}_storage.json`))) {
+    if(fs.existsSync(this.basePath)) {
 
-      this.CounterInsters = (
-        JSON.parse(
-          fs.readFileSync(
-            path.resolve(__dirname, '.', 'storage', `${ApplicationName}_storage.json`)
-          ) as unknown as string
-        ) as unknown as { id: string, message: proto.IWebMessageInfo }[]
-      ).length;
+      if(fs.existsSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`))) {
+
+        this.CounterInsters = (
+          JSON.parse(
+            fs.readFileSync(
+              path.resolve(this.basePath, `${this.ApplicationName}_storage.json`)
+            ) as unknown as string
+          ) as unknown as { id: string, message: proto.IWebMessageInfo }[]
+        ).length;
+  
+      } else {
+  
+        fs.writeFileSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`), '[]');
+        this.CounterInsters = 0;
+  
+      }
 
     } else {
 
-      fs.writeFileSync(path.resolve(__dirname, '.', 'storage', `${ApplicationName}_storage.json`), '[]');
+      fs.mkdirSync(this.basePath);
+      fs.writeFileSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`), '[]');
       this.CounterInsters = 0;
 
     }
@@ -62,7 +74,7 @@ export class AndromedaStorage {
 
   removeStorageFile() {
 
-    fs.rmSync(path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`), { force: true, recursive: true });
+    fs.rmSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`), { force: true, recursive: true });
 
   }
 
@@ -70,7 +82,7 @@ export class AndromedaStorage {
 
     const dataMessages = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`)
+        path.resolve(this.basePath, `${this.ApplicationName}_storage.json`)
       ) as unknown as string
     ) as unknown as { id: string, message: proto.WebMessageInfo }[];
 
@@ -140,11 +152,11 @@ export class AndromedaStorage {
 
     const dataMessages = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`)
+        path.resolve(this.basePath, `${this.ApplicationName}_storage.json`)
       ) as unknown as string
     ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
 
-    fs.writeFileSync(path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`), '[]');
+    fs.writeFileSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`), '[]');
 
     let dataRows = [];
 
@@ -168,7 +180,7 @@ export class AndromedaStorage {
 
     structure = JSON.parse(
       fs.readFileSync(
-        path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`)
+        path.resolve(this.basePath, `${this.ApplicationName}_storage.json`)
       ) as unknown as string
     ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
 
@@ -183,7 +195,7 @@ export class AndromedaStorage {
 
     this.CounterInsters++;
 
-    fs.writeFileSync(path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`), JSON.stringify(structure));
+    fs.writeFileSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`), JSON.stringify(structure));
 
     structure = [];
 
@@ -200,7 +212,7 @@ export class AndromedaStorage {
     let structure = [] as { id: string, message: proto.IWebMessageInfo }[];
 
     structure = JSON.parse(
-      fs.readFileSync(path.resolve(__dirname, '.', 'storage', `${this.ApplicationName}_storage.json`)
+      fs.readFileSync(path.resolve(this.basePath, `${this.ApplicationName}_storage.json`)
       ) as unknown as string
     ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
   

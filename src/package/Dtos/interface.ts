@@ -23,6 +23,7 @@ export interface AndromedaProps {
   sessionName: string,
   qrcodoPath: string,
   qrCodeInTerminal: boolean,
+  TemporaryStoragePath: string,
   IgnoreBroadCastMessages: boolean,
   connectionStorage: AndromedaStorageConnection,
   IgnoreGroupsMessages: boolean,
@@ -35,12 +36,28 @@ export interface IExistenceOnWhatsApp {
   formatedJid: string
 }
 
+export interface IListMessageDefinitions {
+  text: string,
+  footer?: string,
+  title: string,
+  buttonText: string,
+  sections: Array<{
+    title: string,
+    rows: Array<{
+      title: string,
+      rowId: string,
+      description?: string
+    }>
+  }>
+}
+
 export interface IAndromeda {
   verifyExistenceNumber: (number: string) => Promise<IExistenceOnWhatsApp>,
   sendGifOrVideoMessage: (mediaPath: string, number: string, content?: string, isGif?: boolean) => Promise<proto.WebMessageInfo>,
   sendImage: (imagePath: string, number: string, content?: string) => Promise<proto.WebMessageInfo>,
   sendAudioMedia: (audioPath: string, number: string, isPtt?: boolean) => Promise<proto.WebMessageInfo>,
   logOut: () => Promise<boolean>,
+  sendListMessage: (number: string, listMessage: IListMessageDefinitions) => Promise<proto.WebMessageInfo>,
   getDeviceInformation: () => Contact,
   blockContact: (number: string) => Promise<boolean>,
   unBlockContact: (number: string) => Promise<boolean>,

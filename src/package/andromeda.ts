@@ -1,6 +1,6 @@
 import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, IAndromeda, IBaileys, IExistenceOnWhatsApp } from "./Dtos/interface";
+import { AndromedaProps, IAndromeda, IBaileys, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -15,8 +15,13 @@ const normalPrefix = '@s.whatsapp.net';
 export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndromeda> => {
 
   let IS_CONNECTED = false;
-  const StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage, initializerProps.sessionName);
-  const { state, saveCreds } = await useMultiFileAuthState(`andromedaSessions_${initializerProps.sessionName}`);
+
+  const StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage, {
+    sessionName: initializerProps.sessionName,
+    pathStorage: initializerProps.TemporaryStoragePath
+  });
+
+  const { state, saveCreds } = await useMultiFileAuthState(`SessionAndromeda_${initializerProps.sessionName}`);
 
   const presetToSocket: UserFacingSocketConfig = {
     printQRInTerminal: initializerProps.qrCodeInTerminal,
@@ -135,7 +140,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
             StorageInitializer.removeStorageFile();
-            await socket.logout()
+            await socket.logout();
 
             return true;
 
@@ -182,6 +187,20 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               formatedJid: result?.jid || ''
             }
         
+          },
+
+          async sendListMessage(number: string, listMessage: IListMessageDefinitions): Promise<proto.WebMessageInfo> {
+
+            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            const sendListMessage = await socket.sendMessage(`${number}${normalPrefix}`, listMessage);
+
+            if(typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
+
+            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+
+            return sendListMessage;
+
           },
 
           async sendImage(imagePath: string, number: string, content?: string): Promise<proto.WebMessageInfo> {
