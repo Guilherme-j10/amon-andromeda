@@ -15,9 +15,9 @@ const normalPrefix = '@s.whatsapp.net';
 export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndromeda> => {
 
   let IS_CONNECTED = false;
+  initializerProps.onStatusChange('WaitinLogin');
 
   const StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage, {
-    sessionName: initializerProps.sessionName,
     pathStorage: initializerProps.TemporaryStoragePath
   });
 
@@ -70,7 +70,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       if(connection === 'close') {
         
         IS_CONNECTED = false;
-  
+        initializerProps.onStatusChange('WaitinLogin');
+
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
         
         if(shouldReconnect) {
@@ -92,8 +93,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       if(connection === 'open') {
 
         IS_CONNECTED = true;
-        console.clear();
-        console.log('CONNECTED');
+        initializerProps.onStatusChange('Connected');
   
         resolve({
 
@@ -139,7 +139,6 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            StorageInitializer.removeStorageFile();
             await socket.logout();
 
             return true;
