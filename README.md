@@ -22,7 +22,7 @@ const { Andromeda } = require('amon-andromeda');
 
 ## Usage
 
-para poder rodar o código antes é necessária uma conexão com um banco de dados mysql, apenas iniciar um banco de dados localmente ou em nuvem e passar os dados de conexão, nenhuma outra configuração é necessária, Amon-Andromeda cuidara do resto.
+To be able to run the code first a connection to a mysql database is needed, just start a database locally or in the cloud and pass the connection data, no further configuration is needed, Amon-Andromeda will take care of the rest.
 
 ``` js
 const { Andromeda } = require('amon-andromeda');
