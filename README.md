@@ -20,6 +20,15 @@ import { Andromeda } from 'amon-andromeda';
 const { Andromeda } = require('amon-andromeda');
 ```
 
+## Documentations
+
+- <a href="#usage">Usage</a>
+- <a href="#temporary-data-storage">Temporary data storage</a>
+- <a href="#methods">Methods</a>
+- <a href="#listening-to-events">Listening to events</a>
+- <a href="#downloading-media-files">Downloading media files</a>
+- <a href="#running-with-docker">Running with docker</a>
+
 ## Usage
 
 To be able to run the code first a connection to a mysql database is needed, just start a database locally or in the cloud and pass the connection data, no further configuration is needed, Amon-Andromeda will take care of the rest.
@@ -56,6 +65,14 @@ const path = require('path');
   await client.sendSimpleMessage('hello word!', '551197070879');
 
 })();
+```
+
+## Temporary data storage
+
+Some Baileys methods require the entire body of the message sent and received so you need to save the data of all messages somewhere. Baileys itself has an internal module that helps the developer with this task, but this is just a quick fix, since this data is all saved in memory, so if your application is running for a long time and many messages are exchanged, your application will slow down as time goes on and the documentation itself warns the developer that this is not a good approach. So thinking about it, we made a slightly different logic. We save the data of all messages exchanged inside a .JSON file, and when we reach a limit of 500 messages, we migrate this data at once to a mysql database. Therefore, all you need to do is pass the path of the folder, where in the example above we call storage, but you can call it whatever you want, the path of this folder will be used to create the .JSON file where the message data will be saved.
+
+```js
+TemporaryStoragePath: path.resolve(__dirname, '.', 'storage')
 ```
 
 ## Methods
@@ -147,7 +164,7 @@ await client.getDeviceInformation();
 
 **NOTE:** for the method to work correctly, an established connection is required.
 
-## listening to events
+## Listening to events
 
 Every time a new message is received on your device, an event will be triggered, as a parameter it will have an object containing the message body. The **onMessage()** method is initialized as an **andromeda()** parameter, as shown in the usage example at the beginning of the article
 
@@ -170,3 +187,7 @@ downloadMediaPath: path.resolve(__dirname, '..', 'media')
 ```
 
 **NOTE:** when the download finishes, you will receive the fileNameDownloaded property along with the message body data that comes as a parameter in the onMessage event method.
+
+## Running with docker
+
+Just like the volume configuration you do for your database in the docker-compose file, the same is necessary for Amon-Andromeda. Earlier in this article we talked about the TemporaryStoragePath initialization property, so that no data loss occurs you should make a volume for the path you specified in the property.
