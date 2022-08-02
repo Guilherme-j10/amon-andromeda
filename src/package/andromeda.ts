@@ -83,7 +83,15 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         }
 
-        fs.rmSync(path.resolve(__dirname, '..', '..', `andromedaSessions_${initializerProps.sessionName}`), { force: true, recursive: true });
+        try {
+          
+          fs.rmSync(path.resolve(__dirname, '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
+
+        } catch  {
+          
+          fs.rmSync(path.resolve(__dirname, '..', '..', '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
+        
+        }
         
         const AnotherSession = await Andromeda(initializerProps);
         resolve(AnotherSession);

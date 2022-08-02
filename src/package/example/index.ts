@@ -19,6 +19,7 @@ import path from 'path';
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
+    onStatusChange: (connectionStatus) => console.log(connectionStatus),
     onMessage: (message) => {
 
       console.log(JSON.stringify(message, undefined, 2));
