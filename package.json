@@ -1,9 +1,9 @@
 {
   "name": "amon-andromeda",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "Andromeda is a Baileys-based lib, designed to be an easy abstraction of Baileys. Clear and concise, easy-to-use methods with a quick boot setup.",
   "main": "dist/index.js",
-  "license": "GPL",  
+  "license": "GPL",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/Guilherme-j10/amon-andromeda",
   "files": [
@@ -26,6 +26,7 @@
     "knex": "^2.2.0",
     "link-preview-js": "^3.0.0",
     "mysql2": "^2.3.3",
-    "qrcode": "^1.5.1"
+    "qrcode": "^1.5.1",
+    "uuidv4": "^6.2.13"
   }
 }

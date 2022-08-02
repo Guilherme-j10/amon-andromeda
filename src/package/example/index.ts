@@ -8,11 +8,12 @@ import path from 'path';
   const clientOne = await Andromeda({
     sessionName: SessionName,
     TemporaryStoragePath: path.resolve(__dirname, '..', '..', '..', 'storage'),
+    downloadMediaPath: path.resolve(__dirname, '..', 'media'),
     connectionStorage: {
       dbname: 'andromeda',
       host: 'localhost',
-      pass: '1234',
-      user: 'guilherme'
+      pass: 'pass',
+      user: 'user'
     },
     qrCodeInTerminal: true,
     qrcodoPath: path.resolve(__dirname, '..', '..', '..', 'image', `${SessionName}_qrcode.png`),

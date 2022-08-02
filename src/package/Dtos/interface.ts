@@ -2,7 +2,8 @@ import { Contact, MessageUpsertType, proto } from "@adiwajshing/baileys";
 
 export interface MessagesType {
   messages: proto.IWebMessageInfo[],
-  type: MessageUpsertType
+  type: MessageUpsertType,
+  fileNameDownloaded?: string
 }
 
 export interface ITypeDeviceWithMessage {
@@ -21,6 +22,7 @@ export interface AndromedaProps {
   sessionName: string,
   qrcodoPath: string,
   qrCodeInTerminal: boolean,
+  downloadMediaPath: string,
   TemporaryStoragePath: string,
   IgnoreBroadCastMessages: boolean,
   connectionStorage: AndromedaStorageConnection,

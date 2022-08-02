@@ -157,5 +157,5 @@ onMessage(message) => console.log(JSON.stringfy(message, undefined, 2))
 Listening for connection status change event. Every time the connection status changes the **onStatusChange()** event will be triggered, the parameter of this method contains the status for which it was signaled. Thinking about something simpler and more concise, the signaling status was summarized in just two values **['Connected', 'WaitinLogin']**. The **onStatusChange()** method is initialized in the same way as the previous one.
 
 ```js
-onStatusChange: (connectionStatus) => console.log(connectionStatus)
+onStatusChange(connectionStatus) => console.log(connectionStatus)
 ```

@@ -1,10 +1,12 @@
-import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig } from "@adiwajshing/baileys";
+import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
 import { AndromedaProps, IAndromeda, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
+import { writeFile } from 'fs/promises';
 import path from 'path';
+import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
 
 const logger = MAINLOGGER.child({ });
@@ -48,7 +50,55 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
       if(initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
 
-      initializerProps.onMessage(message);
+      let filename = '';
+
+      try {
+        
+        if(message.messages) {
+
+          const typesMediaMessage = ['imageMessage', 'audioMessage', 'videoMessage', 'documentMessage', 'stickerMessage'];
+          const messageType = Object.keys(message.messages[0].message as {})[0];
+  
+          if(typesMediaMessage.includes(messageType)) {
+  
+            const bufferData = await downloadMediaMessage(
+              message.messages[0],
+              'buffer',
+              {},
+              { 
+                logger,
+                reuploadRequest: socket.updateMediaMessage
+              }
+            );
+  
+            const thisPathExists = fs.existsSync(path.resolve(initializerProps.downloadMediaPath));
+  
+            if(!thisPathExists) {
+  
+              fs.mkdirSync(path.resolve(initializerProps.downloadMediaPath));
+  
+            }
+            
+            const mimetypeFile = message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
+
+            filename = `${v4()}.${mimetypeFile.split('/')[1]}`;
+
+            writeFile(path.resolve(initializerProps.downloadMediaPath, filename), bufferData);
+  
+          }
+          
+        }
+
+      } catch (error: any) {
+        
+        console.log({
+          log: 'Not was possible download the message',
+          error: error.message
+        })
+
+      }
+
+      initializerProps.onMessage(filename.length ? { ...message, fileNameDownloaded: filename } : message);
       StorageInitializer.saveMessageInStorage(message);
 
     }
