@@ -33,6 +33,7 @@ const path = require('path');
   const client = await Andromeda({
     sessionName: 'andromeda',
     TemporaryStoragePath: path.resolve(__dirname, '.', 'storage'),
+    downloadMediaPath: path.resolve(__dirname, '..', 'media'),
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
@@ -159,3 +160,13 @@ Listening for connection status change event. Every time the connection status c
 ```js
 onStatusChange(connectionStatus) => console.log(connectionStatus)
 ```
+
+## Downloading media files
+
+Amon-andromeda does all the file handling processes for you. All you need to do is pass the path of the folder where you want the data to be saved in the **downloadMediaPath** property.
+
+```js
+downloadMediaPath: path.resolve(__dirname, '..', 'media')
+```
+
+**NOTE:** when the download finishes, you will receive the fileNameDownloaded property along with the message body data that comes as a parameter in the onMessage event method.
