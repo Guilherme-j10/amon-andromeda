@@ -1,6 +1,4 @@
-import makeWASocket, { Contact, MessageUpsertType, proto, UserFacingSocketConfig } from "@adiwajshing/baileys";
-
-export const IBaileys = makeWASocket({} as UserFacingSocketConfig);
+import { Contact, MessageUpsertType, proto } from "@adiwajshing/baileys";
 
 export interface MessagesType {
   messages: proto.IWebMessageInfo[],

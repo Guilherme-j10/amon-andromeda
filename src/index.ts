@@ -2,8 +2,7 @@ export { Andromeda } from './package/andromeda';
 export { 
   AndromedaProps, 
   AndromedaStorageConnection, 
-  IAndromeda, 
-  IBaileys, 
+  IAndromeda,
   IExistenceOnWhatsApp, 
   IListMessageDefinitions, 
   ITypeDeviceWithMessage, 

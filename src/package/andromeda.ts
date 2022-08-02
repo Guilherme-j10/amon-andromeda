@@ -1,6 +1,6 @@
 import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, IAndromeda, IBaileys, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
+import { AndromedaProps, IAndromeda, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -30,7 +30,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     browser: ['Andromeda', 'MacOS', '3.0']
   };
 
-  let socket: typeof IBaileys = makeWASocket(presetToSocket);
+  let socket = makeWASocket(presetToSocket);
 
   socket.ev.on('connection.update', async () => {
   
