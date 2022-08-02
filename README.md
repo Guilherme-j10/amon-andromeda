@@ -44,6 +44,7 @@ const path = require('path');
       pass: 'pass',
       user: 'user'
     },
+    onStatusChange: (connectionStatus) => console.log(connectionStatus),
     onMessage: (messages) => {
 
       console.log(JSON.stringify(messages, undefined, 2))
@@ -85,10 +86,35 @@ Sending a picture.
 await client.sendImage(path.resolve(__dirname, 'file.png'), '551197070879', 'Hello word!');
 ```
 
+Taking a picture of a contact.
+``` js
+await client.getImageContact('551197070879', false);
+```
+
+**NOTE:** if the second parameter is true, the method will try to get the profile picture of a group.
+
+Blocking a contact.
+``` js
+await client.blockContact('551197070879');
+```
+
+Unlocking a contact.
+``` js
+await client.unBlockContact('551197070879');
+```
+
+Deleting a message for everyone.
+``` js
+await client.deleteMessageForEveryone('551197070879', 'BAE57B9147270DE0', false);
+```
+
+**NOTE:** The third parameter signals whether the message is a group message or not.
+
 Sending audio files.
 ``` js
 await client.sendAudioMedia(path.resolve(__dirname, 'file.mp3'), '551197070879', false);
 ```
+
 **NOTE:** if the last parameter is false the message will be sent as an audio file, if true it will be sent with a voice message.
 
 Sending a list.
@@ -111,4 +137,25 @@ await client.sendListMessage('551197070879', {
     }
   ]
 });
+```
+
+Capturing device information.
+``` js
+await client.getDeviceInformation();
+```
+
+**NOTE:** for the method to work correctly, an established connection is required.
+
+## listening to events
+
+Every time a new message is received on your device, an event will be triggered, as a parameter it will have an object containing the message body. The **onMessage()** method is initialized as an **andromeda()** parameter, as shown in the usage example at the beginning of the article
+
+```js
+onMessage(message) => console.log(JSON.stringfy(message, undefined, 2))
+```
+
+Listening for connection status change event. Every time the connection status changes the **onStatusChange()** event will be triggered, the parameter of this method contains the status for which it was signaled. Thinking about something simpler and more concise, the signaling status was summarized in just two values **['Connected', 'WaitinLogin']**. The **onStatusChange()** method is initialized in the same way as the previous one.
+
+```js
+onStatusChange: (connectionStatus) => console.log(connectionStatus)
 ```
