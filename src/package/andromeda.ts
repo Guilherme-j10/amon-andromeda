@@ -137,6 +137,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         fs.rmSync(path.resolve(__dirname, '..', '..', '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
         
         const AnotherSession = await Andromeda(initializerProps);
+        IS_CONNECTED = true;
         resolve(AnotherSession);
 
       }
