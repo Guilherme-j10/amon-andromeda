@@ -235,7 +235,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         
             return {
               exists: result?.exists || false,
-              formatedJid: result?.jid || ''
+              formatedJid: result?.jid || number
             }
         
           },
