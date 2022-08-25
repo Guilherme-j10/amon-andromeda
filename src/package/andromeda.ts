@@ -29,7 +29,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     printQRInTerminal: initializerProps.qrCodeInTerminal,
     logger: logger,
     auth: state,
-    browser: ['Andromeda', 'MacOS', '3.0']
+    browser: ['Mega Conecta', 'MacOS', '3.0']
   };
 
   let socket = makeWASocket(presetToSocket);
