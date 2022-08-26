@@ -1,6 +1,6 @@
 import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, IAndromeda, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
+import { AndromedaProps, AndromedaStorageConnection, IAndromeda, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -19,9 +19,16 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   let IS_CONNECTED = false;
   initializerProps.onStatusChange('WaitinLogin');
 
-  const StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage, {
-    pathStorage: initializerProps.TemporaryStoragePath
-  });
+  let StorageInitializer: AndromedaStorage;
+  const haveConnectionProps = Object.keys(initializerProps.connectionStorage || {}).length
+
+  if(Object.keys(initializerProps.connectionStorage || {}).length) {
+
+    StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage as AndromedaStorageConnection, {
+      pathStorage: initializerProps.TemporaryStoragePath
+    });
+
+  }
 
   const { state, saveCreds } = await useMultiFileAuthState(`SessionAndromeda_${initializerProps.sessionName}`);
 
@@ -29,7 +36,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     printQRInTerminal: initializerProps.qrCodeInTerminal,
     logger: logger,
     auth: state,
-    browser: ['Mega Conecta', 'MacOS', '3.0']
+    browser: [initializerProps.agentName ? initializerProps.agentName : 'Andromeda', 'MacOS', '3.0']
   };
 
   let socket = makeWASocket(presetToSocket);
@@ -99,7 +106,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       }
 
       initializerProps.onMessage(filename.length ? { ...message, fileNameDownloaded: filename } : message);
-      StorageInitializer.saveMessageInStorage(message);
+
+      if(haveConnectionProps) StorageInitializer.saveMessageInStorage(message);
 
     }
 
@@ -153,7 +161,9 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
+            if(!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+
+            const msg = await StorageInitializer.getMessageFromFakestorage(quotedId); 
 
             const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
 
@@ -181,7 +191,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
 
             return sendMediaMessage;
 
@@ -200,6 +210,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
           async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean): Promise<proto.WebMessageInfo> {
 
             if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+            if(!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
 
             const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
 
@@ -248,7 +260,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
 
             return sendListMessage;
 
@@ -270,7 +282,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             if(typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
+            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
 
             return sendImage;
 
@@ -337,7 +349,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         
             if(typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
+            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
         
             return sendMessage;
         

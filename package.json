@@ -1,6 +1,6 @@
 {
   "name": "amon-andromeda",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Andromeda is a Baileys-based lib, designed to be an easy abstraction of Baileys. Clear and concise, easy-to-use methods with a quick boot setup.",
   "main": "dist/index.js",
   "license": "GPL",
@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "tsnd --transpile-only --respawn --ignore-watch node_modules src/usage.ts",
     "build": "tsc",
-    "publish-code": "rm -rf dist && yarn build && npm publish",
+    "publish-code": "rm -rf dist && yarn build",
     "example": "yarn build && node dist/package/example/index.js"
   },
   "dependencies": {

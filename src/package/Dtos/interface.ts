@@ -21,11 +21,12 @@ export interface AndromedaStorageConnection {
 export interface AndromedaProps {
   sessionName: string,
   qrcodoPath: string,
+  agentName?: string,
   qrCodeInTerminal: boolean,
   downloadMediaPath: string,
   TemporaryStoragePath: string,
   IgnoreBroadCastMessages: boolean,
-  connectionStorage: AndromedaStorageConnection,
+  connectionStorage?: AndromedaStorageConnection,
   IgnoreGroupsMessages: boolean,
   IgnoreServer_ACK: boolean,
   onMessage: (message: MessagesType) => void
