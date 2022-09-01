@@ -135,6 +135,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         if(shouldReconnect) {
   
           const client = await Andromeda(initializerProps);
+          IS_CONNECTED = true;
           resolve(client);
 
           return;
