@@ -100,7 +100,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         
         console.log({
           log: 'Not was possible download the message',
-          error: error.message
+          error: error.message,
+          message: message
         })
 
       }
