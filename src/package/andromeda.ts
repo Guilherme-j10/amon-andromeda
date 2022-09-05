@@ -9,7 +9,7 @@ import path from 'path';
 import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
 
-const logger = MAINLOGGER.child({ });
+const logger = MAINLOGGER.child({});
 logger.level = 'silent';
 
 const normalPrefix = '@s.whatsapp.net';
@@ -22,7 +22,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   let StorageInitializer: AndromedaStorage;
   const haveConnectionProps = Object.keys(initializerProps.connectionStorage || {}).length
 
-  if(Object.keys(initializerProps.connectionStorage || {}).length) {
+  if (Object.keys(initializerProps.connectionStorage || {}).length) {
 
     StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage as AndromedaStorageConnection, {
       pathStorage: initializerProps.TemporaryStoragePath
@@ -42,73 +42,73 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   let socket = makeWASocket(presetToSocket);
 
   socket.ev.on('connection.update', async () => {
-  
+
     await saveCreds();
 
   });
 
   socket.ev.on('messages.upsert', async (message) => {
 
-    if(message.type === 'notify'){
+    if (message.type === 'notify') {
 
-      if(initializerProps.IgnoreServer_ACK && message.messages[0].status === 2) return;
+      if (initializerProps.IgnoreServer_ACK && message.messages[0].status === 2) return;
 
-      if(initializerProps.IgnoreBroadCastMessages && message.messages[0].key.remoteJid?.match(/@broadcast/gi)?.length) return;
+      if (initializerProps.IgnoreBroadCastMessages && message.messages[0].key.remoteJid?.match(/@broadcast/gi)?.length) return;
 
-      if(initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
+      if (initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
 
       let filename = '';
 
       try {
-        
-        if(message.messages) {
+
+        if (message.messages) {
 
           const typesMediaMessage = ['imageMessage', 'audioMessage', 'videoMessage', 'documentMessage', 'stickerMessage'];
           const messageType = Object.keys(message.messages[0].message as {})[0];
-  
-          if(typesMediaMessage.includes(messageType)) {
-  
+
+          if (typesMediaMessage.includes(messageType)) {
+
             const bufferData = await downloadMediaMessage(
               message.messages[0],
               'buffer',
               {},
-              { 
+              {
                 logger,
                 reuploadRequest: socket.updateMediaMessage
               }
             );
-  
+
             const thisPathExists = fs.existsSync(path.resolve(initializerProps.downloadMediaPath));
-  
-            if(!thisPathExists) {
-  
+
+            if (!thisPathExists) {
+
               fs.mkdirSync(path.resolve(initializerProps.downloadMediaPath));
-  
+
             }
-            
+
             const mimetypeFile = message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
 
             filename = `${v4()}.${mimetypeFile.split('/')[1]}`;
 
             writeFile(path.resolve(initializerProps.downloadMediaPath, filename), bufferData);
-  
+
           }
-          
+
         }
 
       } catch (error: any) {
-        
+
         console.log({
           log: 'Not was possible download the message',
           error: error.message,
-          message: message
+          message: JSON.stringify(message, undefined, 2)
         })
 
       }
 
       initializerProps.onMessage(filename.length ? { ...message, fileNameDownloaded: filename } : message);
 
-      if(haveConnectionProps) StorageInitializer.saveMessageInStorage(message);
+      if (haveConnectionProps) StorageInitializer.saveMessageInStorage(message);
 
     }
 
@@ -119,22 +119,22 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     socket.ev.on('connection.update', async (update) => {
 
       const { connection, lastDisconnect } = update;
-  
-      if(update.qr){
-  
+
+      if (update.qr) {
+
         Qrcode.toFile(initializerProps.qrcodoPath, update.qr)
-  
+
       }
-  
-      if(connection === 'close') {
-        
+
+      if (connection === 'close') {
+
         IS_CONNECTED = false;
         initializerProps.onStatusChange('WaitinLogin');
 
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-        
-        if(shouldReconnect) {
-  
+
+        if (shouldReconnect) {
+
           const client = await Andromeda(initializerProps);
           IS_CONNECTED = true;
           resolve(client);
@@ -142,225 +142,357 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
           return;
 
         }
-        
+
         fs.rmSync(path.resolve(__dirname, '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
         fs.rmSync(path.resolve(__dirname, '..', '..', '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
-        
+
         const AnotherSession = await Andromeda(initializerProps);
         IS_CONNECTED = true;
         resolve(AnotherSession);
 
       }
-      
-      if(connection === 'open') {
+
+      if (connection === 'open') {
 
         IS_CONNECTED = true;
         initializerProps.onStatusChange('Connected');
-  
+
         resolve({
 
           async replyMessage(number: string, content: string, quotedId: string): Promise<proto.WebMessageInfo> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            if(!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const msg = await StorageInitializer.getMessageFromFakestorage(quotedId); 
+              if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
 
-            const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
+              const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
 
-            if(typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
+              const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
+              if (typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
 
-            return sendReply;
+              StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
+
+              return sendReply;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as proto.WebMessageInfo;
+
+            }
 
           },
 
           async sendGifOrVideoMessage(mediaPath: string, number: string, content?: string, isGif?: boolean): Promise<proto.WebMessageInfo> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const optionsMedia: AnyMessageContent = {
-              video: fs.readFileSync(mediaPath)
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              const optionsMedia: AnyMessageContent = {
+                video: fs.readFileSync(mediaPath)
+              }
+
+              if (isGif) optionsMedia.gifPlayback = true;
+
+              if (content) optionsMedia.caption = content;
+
+              const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
+
+              if (typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
+
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+
+              return sendMediaMessage;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as proto.WebMessageInfo;
+
             }
 
-            if(isGif) optionsMedia.gifPlayback = true;
-
-            if(content) optionsMedia.caption = content;
-
-            const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
-
-            if(typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
-
-            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
-
-            return sendMediaMessage;
-
           },
- 
-          async logOut (): Promise<boolean> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+          async logOut(): Promise<boolean> {
 
-            await socket.logout();
+            try {
 
-            return true;
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              await socket.logout();
+
+              return true;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return false;
+
+            }
 
           },
 
           async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean): Promise<proto.WebMessageInfo> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            if(!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
+              if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
 
-            const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
-              audio: {
-                url: audioPath
-              },
-              ptt: isPtt ? isPtt : false,
-              mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
-            });
+              const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
 
-            if(typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
+              const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
+                audio: {
+                  url: audioPath
+                },
+                ptt: isPtt ? isPtt : false,
+                mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
+              });
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendAudioMedia] });
+              if (typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
 
-            return sendAudioMedia;
+              StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendAudioMedia] });
 
-          },
+              return sendAudioMedia;
 
-          getDeviceInformation (): Contact {
+            } catch (error: any) {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+              console.log(error.message || error);
 
-            return socket.user as Contact;
+              return {} as proto.WebMessageInfo;
 
-          },
-
-          async verifyExistenceNumber (number: string): Promise<IExistenceOnWhatsApp> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            const [result] = await socket.onWhatsApp(number);
-        
-            return {
-              exists: result?.exists || false,
-              formatedJid: result?.jid || number
             }
-        
+
+          },
+
+          getDeviceInformation(): Contact {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              return socket.user as Contact;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as Contact;
+
+            }
+
+          },
+
+          async verifyExistenceNumber(number: string): Promise<IExistenceOnWhatsApp> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              const [result] = await socket.onWhatsApp(number);
+
+              return {
+                exists: result?.exists || false,
+                formatedJid: result?.jid || number
+              }
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as IExistenceOnWhatsApp;
+
+            }
+
           },
 
           async sendListMessage(number: string, listMessage: IListMessageDefinitions): Promise<proto.WebMessageInfo> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const sendListMessage = await socket.sendMessage(`${number}${normalPrefix}`, listMessage);
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if(typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
+              const sendListMessage = await socket.sendMessage(`${number}${normalPrefix}`, listMessage);
 
-            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+              if (typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
 
-            return sendListMessage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+
+              return sendListMessage;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as proto.WebMessageInfo;
+
+            }
 
           },
 
           async sendImage(imagePath: string, number: string, content?: string): Promise<proto.WebMessageInfo> {
 
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const optionsSenMessage: AnyMessageContent = {
-              image: {
-                url: imagePath
-              }
-            };  
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if(content) optionsSenMessage.caption = content;
+              const optionsSenMessage: AnyMessageContent = {
+                image: {
+                  url: imagePath
+                }
+              };
 
-            const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
+              if (content) optionsSenMessage.caption = content;
 
-            if(typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
+              const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
 
-            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
+              if (typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
 
-            return sendImage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
 
-          },  
-          
-          async blockContact (number: string): Promise<boolean> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'block');
-        
-            return true;
-          
+              return sendImage;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as proto.WebMessageInfo;
+
+            }
+
           },
-        
-          async unBlockContact (number: string): Promise<boolean> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-            
-            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'unblock');
-            
-            return true;
-          
+
+          async blockContact(number: string): Promise<boolean> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              await socket.updateBlockStatus(`${number}${normalPrefix}`, 'block');
+
+              return true;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return false;
+
+            }
+
           },
-        
+
+          async unBlockContact(number: string): Promise<boolean> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              await socket.updateBlockStatus(`${number}${normalPrefix}`, 'unblock');
+
+              return true;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return false;
+
+            }
+
+          },
+
           async getImageContact(number: string, isGroup: boolean): Promise<{ uri: string }> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
-        
-            const profilePictureUrl = await socket.profilePictureUrl(`${number}${prefix}`, 'image');
-        
-            if(typeof profilePictureUrl === 'undefined') throw { message: 'Not was possible fatch the url profile of this contact.' }
-        
-            return {
-              uri: profilePictureUrl as string
-            };
-        
-          },
-        
-          async deleteMessageForEveryone(number: string, messageId: string, isGroup?: boolean): Promise<boolean> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
-        
-            const deleteMessage = socket.sendMessage(`${number}${prefix}`, { delete: {
-              remoteJid: `${number}${prefix}`,
-              id: messageId,
-            } });
-        
-            if(typeof deleteMessage === 'undefined') throw { message: 'Not was possible delete this message' }
-        
-            return true;
-        
-          },
-        
-          async sendSimpleMessage(content: string, number: string): Promise<proto.WebMessageInfo> {
-        
-            if(!IS_CONNECTED) throw { message: 'Connection is closed.' };
-        
-            const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
-        
-            if(typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
 
-            if(haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
-        
-            return sendMessage;
-        
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
+
+              const profilePictureUrl = await socket.profilePictureUrl(`${number}${prefix}`, 'image');
+
+              if (typeof profilePictureUrl === 'undefined') throw { message: 'Not was possible fatch the url profile of this contact.' }
+
+              return {
+                uri: profilePictureUrl as string
+              };
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as { uri: string };
+
+            }
+
           },
-        
+
+          async deleteMessageForEveryone(number: string, messageId: string, isGroup?: boolean): Promise<boolean> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
+
+              const deleteMessage = socket.sendMessage(`${number}${prefix}`, {
+                delete: {
+                  remoteJid: `${number}${prefix}`,
+                  id: messageId,
+                }
+              });
+
+              if (typeof deleteMessage === 'undefined') throw { message: 'Not was possible delete this message' }
+
+              return true;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return false;
+
+            }
+
+          },
+
+          async sendSimpleMessage(content: string, number: string): Promise<proto.WebMessageInfo> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
+
+              if (typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
+
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
+
+              return sendMessage;
+
+            } catch (error: any) {
+
+              console.log(error.message || error);
+
+              return {} as proto.WebMessageInfo;
+
+            }
+
+          },
+
         })
-  
+
       }
-  
+
     });
 
   });
