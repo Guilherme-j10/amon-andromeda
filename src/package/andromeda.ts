@@ -179,7 +179,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('replyMessage', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
@@ -211,7 +211,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('sendGifOrVideoMessage', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
@@ -231,7 +231,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('logOut', error.message || error);
 
               return false;
 
@@ -265,7 +265,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('sendAudioMedia', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
@@ -283,7 +283,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('getDeviceInformation', error.message || error);
 
               return {} as Contact;
 
@@ -306,7 +306,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('verifyExistenceNumber', error.message || error);
 
               return {} as IExistenceOnWhatsApp;
 
@@ -330,7 +330,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('sendListMessage', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
@@ -362,7 +362,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('sendImage', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
@@ -382,7 +382,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('blockContact', error.message || error);
 
               return false;
 
@@ -402,7 +402,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('unBlockContact', error.message || error);
 
               return false;
 
@@ -428,7 +428,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('getImageContact', error.message || error);
 
               return {} as { uri: string };
 
@@ -457,7 +457,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('deleteMessageForEveryone', error.message || error);
 
               return false;
 
@@ -481,7 +481,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             } catch (error: any) {
 
-              console.log(error.message || error);
+              console.log('sendSimpleMessage', error.message || error);
 
               return {} as proto.WebMessageInfo;
 
