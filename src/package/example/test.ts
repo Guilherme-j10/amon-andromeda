@@ -16,9 +16,22 @@ import path from 'path';
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
     onStatusChange: (connectionStatus) => console.log(connectionStatus),
-    onMessage: (message) => console.log(JSON.stringify(message, undefined, 2))
+    onMessage: (message) => console.log(JSON.stringify(message, undefined, 2)),
+    onDisconnected: () => console.log('disconectou')
   });
 
-  console.log(clientOne.getDeviceInformation());
+  setInterval(async () => {
+
+    try {
+      
+      console.log((await clientOne.verifyExistenceNumber('5511930224168')));
+
+    } catch (error: any) {
+      
+      console.log('error', error.message);
+
+    }
+
+  }, 2000);
 
 })()

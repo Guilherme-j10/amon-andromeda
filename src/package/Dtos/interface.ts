@@ -30,7 +30,8 @@ export interface AndromedaProps {
   IgnoreGroupsMessages: boolean,
   IgnoreServer_ACK: boolean,
   onMessage: (message: MessagesType) => void
-  onStatusChange: (connectionStatus: 'Connected' | 'WaitinLogin') => void
+  onStatusChange: (connectionStatus: 'Connected' | 'WaitinLogin') => void,
+  onDisconnected: () => void
 }
 
 export interface IExistenceOnWhatsApp {

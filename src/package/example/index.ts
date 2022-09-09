@@ -20,6 +20,7 @@ import path from 'path';
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
+    onDisconnected: () => console.log(''),
     onStatusChange: (connectionStatus) => console.log(connectionStatus),
     onMessage: (message) => {
 
