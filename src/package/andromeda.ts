@@ -133,6 +133,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
 
+        console.log((lastDisconnect?.error as Boom).output.statusCode);
+
         if (shouldReconnect) {
 
           const client = await Andromeda(initializerProps);
@@ -159,201 +161,253 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
           async replyMessage(number: string, content: string, quotedId: string): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
+              
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+              if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+  
+              const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
+  
+              const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
+  
+              if (typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
+  
+              StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
+  
+              return sendReply;
 
-            const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
-
-            const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
-
-            if (typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
-
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
-
-            return sendReply;
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
           async sendGifOrVideoMessage(mediaPath: string, number: string, content?: string, isGif?: boolean): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const optionsMedia: AnyMessageContent = {
-              video: fs.readFileSync(mediaPath)
-            }
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if (isGif) optionsMedia.gifPlayback = true;
+              const optionsMedia: AnyMessageContent = {
+                video: fs.readFileSync(mediaPath)
+              }
 
-            if (content) optionsMedia.caption = content;
+              if (isGif) optionsMedia.gifPlayback = true;
 
-            const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
+              if (content) optionsMedia.caption = content;
 
-            if (typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
+              const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
 
-            if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+              if (typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
 
-            return sendMediaMessage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+
+              return sendMediaMessage;
+
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
           async logOut(): Promise<boolean> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            await socket.logout();
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            return true;
+              await socket.logout();
+
+              return true;
+
+            } catch { return false }
 
           },
 
           async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
+              if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
 
-            const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
-              audio: {
-                url: audioPath
-              },
-              ptt: isPtt ? isPtt : false,
-              mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
-            });
+              const device = await StorageInitializer.getTypeDevice(`${number}${normalPrefix}`);
 
-            if (typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
+              const sendAudioMedia = await socket.sendMessage(`${number}${normalPrefix}`, {
+                audio: {
+                  url: audioPath
+                },
+                ptt: isPtt ? isPtt : false,
+                mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
+              });
 
-            StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendAudioMedia] });
+              if (typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
 
-            return sendAudioMedia;
+              StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendAudioMedia] });
+
+              return sendAudioMedia;
+
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
           getDeviceInformation(): Contact {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            return socket.user as Contact;
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+
+              return socket.user as Contact;
+
+            } catch { return {} as Contact }
 
           },
 
           async verifyExistenceNumber(number: string): Promise<IExistenceOnWhatsApp> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const [result] = await socket.onWhatsApp(number);
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            return {
-              exists: result?.exists || false,
-              formatedJid: result?.jid || number
-            }
+              const [result] = await socket.onWhatsApp(number);
+
+              return {
+                exists: result?.exists || false,
+                formatedJid: result?.jid || number
+              }
+
+            } catch { return {} as IExistenceOnWhatsApp }
 
           },
 
           async sendListMessage(number: string, listMessage: IListMessageDefinitions): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const sendListMessage = await socket.sendMessage(`${number}${normalPrefix}`, listMessage);
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if (typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
+              const sendListMessage = await socket.sendMessage(`${number}${normalPrefix}`, listMessage);
 
-            if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+              if (typeof sendListMessage === 'undefined') throw { message: 'Not was possible send audio media.' }
 
-            return sendListMessage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendListMessage] });
+
+              return sendListMessage;
+
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
           async sendImage(imagePath: string, number: string, content?: string): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const optionsSenMessage: AnyMessageContent = {
-              image: {
-                url: imagePath
-              }
-            };
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if (content) optionsSenMessage.caption = content;
+              const optionsSenMessage: AnyMessageContent = {
+                image: {
+                  url: imagePath
+                }
+              };
 
-            const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
+              if (content) optionsSenMessage.caption = content;
 
-            if (typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
+              const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
 
-            if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
+              if (typeof sendImage === 'undefined') throw { message: 'Not was possible send image' }
 
-            return sendImage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendImage] });
+
+              return sendImage;
+
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
           async blockContact(number: string): Promise<boolean> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'block');
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            return true;
+              await socket.updateBlockStatus(`${number}${normalPrefix}`, 'block');
+
+              return true;
+
+            } catch { return false }
 
           },
 
           async unBlockContact(number: string): Promise<boolean> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            await socket.updateBlockStatus(`${number}${normalPrefix}`, 'unblock');
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            return true;
+              await socket.updateBlockStatus(`${number}${normalPrefix}`, 'unblock');
+
+              return true;
+
+            } catch { return false }
 
           },
 
           async getImageContact(number: string, isGroup: boolean): Promise<{ uri: string }> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const profilePictureUrl = await socket.profilePictureUrl(`${number}${prefix}`, 'image');
+              const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
 
-            if (typeof profilePictureUrl === 'undefined') throw { message: 'Not was possible fatch the url profile of this contact.' }
+              const profilePictureUrl = await socket.profilePictureUrl(`${number}${prefix}`, 'image');
 
-            return {
-              uri: profilePictureUrl as string
-            };
+              if (typeof profilePictureUrl === 'undefined') throw { message: 'Not was possible fatch the url profile of this contact.' }
+
+              return {
+                uri: profilePictureUrl as string
+              };
+
+            } catch { return { uri: '' } }
 
           },
 
           async deleteMessageForEveryone(number: string, messageId: string, isGroup?: boolean): Promise<boolean> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            const deleteMessage = socket.sendMessage(`${number}${prefix}`, {
-              delete: {
-                remoteJid: `${number}${prefix}`,
-                id: messageId,
-              }
-            });
+              const prefix = isGroup ? '@g.us' : '@s.whatsapp.net';
 
-            if (typeof deleteMessage === 'undefined') throw { message: 'Not was possible delete this message' }
+              const deleteMessage = socket.sendMessage(`${number}${prefix}`, {
+                delete: {
+                  remoteJid: `${number}${prefix}`,
+                  id: messageId,
+                }
+              });
 
-            return true;
+              if (typeof deleteMessage === 'undefined') throw { message: 'Not was possible delete this message' }
+
+              return true;
+
+            } catch { return false }
 
           },
 
           async sendSimpleMessage(content: string, number: string): Promise<proto.WebMessageInfo> {
 
-            if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
+            try {
 
-            const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
-            if (typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
+              const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
 
-            if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
+              if (typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
 
-            return sendMessage;
+              if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMessage] });
+
+              return sendMessage;
+
+            } catch { return {} as proto.WebMessageInfo; }
 
           },
 

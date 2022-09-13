@@ -20,6 +20,8 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
+  await clientOne.sendSimpleMessage('asdf', 'asdf');
+
   setInterval(async () => {
 
     try {
