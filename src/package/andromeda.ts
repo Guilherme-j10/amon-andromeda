@@ -133,8 +133,6 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
 
-        console.log((lastDisconnect?.error as Boom).output.statusCode);
-
         if (shouldReconnect) {
 
           const client = await Andromeda(initializerProps);
