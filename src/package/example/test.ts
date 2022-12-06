@@ -7,11 +7,11 @@ import path from 'path';
 
   const clientOne = await Andromeda({
     sessionName: SessionName,
-    TemporaryStoragePath: path.resolve(__dirname, '..', '..', '..', 'storage'),
-    downloadMediaPath: path.resolve(__dirname, '..', '..', '..', 'media'),
+    TemporaryStoragePath: path.resolve(__dirname, '.', 'storage'),
+    downloadMediaPath: path.resolve(__dirname, '.', 'media'),
     qrCodeInTerminal: true,
     agentName: SessionName,
-    qrcodoPath: path.resolve(__dirname, '..', '..', '..', 'image', `${SessionName}_qrcode.png`),
+    qrcodoPath: path.resolve(__dirname, '.', 'image', `${SessionName}_qrcode.png`),
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
@@ -20,20 +20,6 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
-  await clientOne.sendSimpleMessage('asdf', 'asdf');
-
-  setInterval(async () => {
-
-    try {
-      
-      console.log((await clientOne.verifyExistenceNumber('5511930224168')));
-
-    } catch (error: any) {
-      
-      console.log('error', error.message);
-
-    }
-
-  }, 2000);
+  await clientOne.sendSimpleMessage('asdf', '5511983547629');
 
 })()

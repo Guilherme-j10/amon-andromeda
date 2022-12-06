@@ -57,6 +57,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
       if (initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
 
+      if(message.messages[0].messageStubParameters) return;
+
       let filename = '';
 
       try {
@@ -64,7 +66,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         if (message.messages) {
 
           const typesMediaMessage = ['imageMessage', 'audioMessage', 'videoMessage', 'documentMessage', 'stickerMessage'];
-          const messageType = Object.keys(message.messages[0].message as {})[0];
+          const messageType = Object.keys(message.messages[0]?.message as {} || {})[0];
 
           if (typesMediaMessage.includes(messageType)) {
 
@@ -88,7 +90,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             const mimetypeFile = message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
 
-            filename = `${v4()}.${mimetypeFile.split('/')[1]}`;
+            filename = `${v4()}.${get_mime_type_archive(mimetypeFile)}`;
 
             writeFile(path.resolve(initializerProps.downloadMediaPath, filename), bufferData);
 
@@ -113,6 +115,15 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     }
 
   });
+
+  const get_mime_type_archive = (value: string): string => {
+
+    const split_step_one = value.split('/');
+    const split_step_two = split_step_one[1].split(';');
+
+    return split_step_two.length > 1 ? split_step_two[0] : split_step_one[1];
+
+  }
 
   return new Promise((resolve) => {
 
