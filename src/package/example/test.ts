@@ -20,6 +20,6 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
-  await clientOne.sendSimpleMessage('asdf', '5511983547629');
+  await clientOne.sendSimpleMessage('asdf', 'phone_number');
 
 })()
