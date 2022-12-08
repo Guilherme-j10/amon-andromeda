@@ -51,7 +51,10 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
     if (message.type === 'notify') {
 
-      if (initializerProps.IgnoreServer_ACK && message.messages[0].status === 2) return;
+      if (
+        initializerProps.IgnoreServer_ACK && 
+        (message.messages[0].status === 2 && 
+          (typeof message.messages[0].key.fromMe === 'boolean' && !message.messages[0].key.fromMe))) return;
 
       if (initializerProps.IgnoreBroadCastMessages && message.messages[0].key.remoteJid?.match(/@broadcast/gi)?.length) return;
 
