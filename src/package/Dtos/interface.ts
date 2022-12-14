@@ -54,6 +54,11 @@ export interface IListMessageDefinitions {
   }>
 }
 
+export interface IDocumentContent {
+  location_path: string,
+  file_name: string
+}
+
 export interface IAndromeda {
   verifyExistenceNumber: (number: string) => Promise<IExistenceOnWhatsApp>,
   sendGifOrVideoMessage: (mediaPath: string, number: string, content?: string, isGif?: boolean) => Promise<proto.WebMessageInfo>,
@@ -62,6 +67,7 @@ export interface IAndromeda {
   logOut: () => Promise<boolean>,
   sendListMessage: (number: string, listMessage: IListMessageDefinitions) => Promise<proto.WebMessageInfo>,
   getDeviceInformation: () => Contact,
+  sendArchive: (document: IDocumentContent, number: string) => Promise<proto.WebMessageInfo>,
   blockContact: (number: string) => Promise<boolean>,
   unBlockContact: (number: string) => Promise<boolean>,
   getImageContact: (number: string, isGroup: boolean) => Promise<{ uri: string }>,

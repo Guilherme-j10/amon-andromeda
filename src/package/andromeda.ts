@@ -1,6 +1,6 @@
 import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, AndromedaStorageConnection, IAndromeda, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
+import { AndromedaProps, AndromedaStorageConnection, IAndromeda, IDocumentContent, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -8,6 +8,7 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
+import mime from 'mime-types';
 
 const logger = MAINLOGGER.child({});
 logger.level = 'silent';
@@ -52,16 +53,16 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     if (message.type === 'notify') {
 
       if (
-        initializerProps.IgnoreServer_ACK && 
-        (message.messages[0].status === 2 && (typeof message.messages[0].key.fromMe === 'boolean' && !message.messages[0].key.fromMe)) && 
-        !message.messages[0].message?.protocolMessage
+        initializerProps.IgnoreServer_ACK &&
+        (message.messages[0].status === 2 && (typeof message.messages[0].key.fromMe === 'boolean' && !message.messages[0].key.fromMe)) &&
+        !Object.keys(message.messages[0].message?.protocolMessage || {}).length
       ) return;
 
       if (initializerProps.IgnoreBroadCastMessages && message.messages[0].key.remoteJid?.match(/@broadcast/gi)?.length) return;
 
       if (initializerProps.IgnoreGroupsMessages && message.messages[0].key.remoteJid?.match(/@g.us/gi)?.length) return;
 
-      if(message.messages[0].messageStubParameters) return;
+      if (message.messages[0].messageStubParameters) return;
 
       let filename = '';
 
@@ -175,19 +176,19 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
           async replyMessage(number: string, content: string, quotedId: string): Promise<proto.WebMessageInfo> {
 
             try {
-              
+
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
               if (!haveConnectionProps) throw { message: 'For this method a mysql connection is required' };
-  
+
               const msg = await StorageInitializer.getMessageFromFakestorage(quotedId);
-  
+
               const sendReply = await socket.sendMessage(`${number}${normalPrefix}`, { text: content }, { quoted: msg });
-  
+
               if (typeof sendReply === 'undefined') throw { message: 'Not was possible reply this message' }
-  
+
               StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendReply] });
-  
+
               return sendReply;
 
             } catch { return {} as proto.WebMessageInfo }
@@ -217,6 +218,26 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               return sendMediaMessage;
 
             } catch { return {} as proto.WebMessageInfo }
+
+          },
+
+          async sendArchive(document: IDocumentContent, number: string): Promise<proto.WebMessageInfo> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' }
+
+              const prepared_content: AnyMessageContent = {
+                mimetype: mime.lookup(document.location_path) as string,
+                fileName: document.file_name,
+                document: fs.readFileSync(document.location_path)
+              }
+
+              const send_media_message = await socket.sendMessage(`${number}${normalPrefix}`, prepared_content);
+
+              return send_media_message as proto.WebMessageInfo;
+
+            } catch {  return {} as proto.WebMessageInfo }
 
           },
 
