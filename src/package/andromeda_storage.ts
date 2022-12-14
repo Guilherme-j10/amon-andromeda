@@ -156,7 +156,7 @@ export class AndromedaStorage {
 
       dataRows.push({
         message_id: message.id,
-        remoteJib: message.message.key.remoteJid,
+        remoteJid: message.message.key.remoteJid,
         MessageStructure: JSON.stringify(message.message)
       });
 
