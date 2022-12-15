@@ -103,7 +103,7 @@ export class AndromedaStorage {
 
     for(let msg of result) {
 
-      let message = JSON.parse(msg) as unknown as proto.WebMessageInfo;
+      let message = JSON.parse(msg.MessageStructure) as unknown as proto.WebMessageInfo;
 
       const device = getDevice(message.key.id as string);
       TypeDeviceOcorrence[device]++;
