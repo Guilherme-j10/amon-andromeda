@@ -1,6 +1,6 @@
 {
   "name": "amon-andromeda",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "Andromeda is a Baileys-based lib, designed to be an easy abstraction of Baileys. Clear and concise, easy-to-use methods with a quick boot setup.",
   "main": "dist/index.js",
   "license": "GPL",

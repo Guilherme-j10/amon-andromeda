@@ -192,7 +192,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         resolve({
 
-          async diconnect_database(): Promise<void> {
+          async disconnect_database(): Promise<void> {
 
             await connection_database.destroy()
 
