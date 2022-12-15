@@ -72,6 +72,7 @@ export interface IAndromeda {
   unBlockContact: (number: string) => Promise<boolean>,
   getImageContact: (number: string, isGroup: boolean) => Promise<{ uri: string }>,
   deleteMessageForEveryone: (number: string, messageId: string, isGroup?: boolean) => Promise<boolean>,
-  sendSimpleMessage: (content: string, number: string) => Promise<proto.WebMessageInfo>
-  replyMessage: (number: string, content: string, quotedId: string) => Promise<proto.WebMessageInfo>
+  sendSimpleMessage: (content: string, number: string) => Promise<proto.WebMessageInfo>,
+  replyMessage: (number: string, content: string, quotedId: string) => Promise<proto.WebMessageInfo>,
+  diconnect_database: () => Promise<void>
 }

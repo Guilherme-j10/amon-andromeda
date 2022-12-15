@@ -1,6 +1,6 @@
 import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "@adiwajshing/baileys";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, AndromedaStorageConnection, IAndromeda, IDocumentContent, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
+import { AndromedaProps, IAndromeda, IDocumentContent, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -9,6 +9,7 @@ import path from 'path';
 import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
 import mime from 'mime-types';
+import knex from "knex";
 
 const logger = MAINLOGGER.child({});
 logger.level = 'silent';
@@ -21,11 +22,21 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   initializerProps.onStatusChange('WaitinLogin');
 
   let StorageInitializer: AndromedaStorage;
-  const haveConnectionProps = Object.keys(initializerProps.connectionStorage || {}).length
+  const haveConnectionProps = Object.keys(initializerProps.connectionStorage || {}).length;
+
+  const connection_database = knex({
+    client: 'mysql2',
+    connection: {
+      host: initializerProps?.connectionStorage?.host || '',
+      password: initializerProps?.connectionStorage?.pass || '',
+      database: initializerProps?.connectionStorage?.dbname || '',
+      user: initializerProps?.connectionStorage?.user || ''
+    }
+  });;
 
   if (Object.keys(initializerProps.connectionStorage || {}).length) {
 
-    StorageInitializer = new AndromedaStorage(initializerProps.connectionStorage as AndromedaStorageConnection, {
+    StorageInitializer = new AndromedaStorage(connection_database, {
       pathStorage: initializerProps.TemporaryStoragePath
     });
 
@@ -54,8 +65,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
       if (
         initializerProps.IgnoreServer_ACK &&
-        (message.messages[0].status === 2 && (typeof message.messages[0].key.fromMe === 'boolean' && !message.messages[0].key.fromMe)) &&
-        !Object.keys(message.messages[0].message?.protocolMessage || {}).length
+        (message.messages[0].status === 2 && (typeof message.messages[0].key.fromMe === 'boolean' && !message.messages[0].key.fromMe)) ||
+        Object.keys(message.messages[0].message?.protocolMessage || {}).length
       ) return;
 
       if (initializerProps.IgnoreBroadCastMessages && message.messages[0].key.remoteJid?.match(/@broadcast/gi)?.length) return;
@@ -95,7 +106,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             const mimetypeFile = message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
 
-            filename = `${v4()}.${get_mime_type_archive(mimetypeFile)}`;
+            filename = `${v4()}.${mime.extension(mimetypeFile)}`;
 
             writeFile(path.resolve(initializerProps.downloadMediaPath, filename), bufferData);
 
@@ -121,14 +132,22 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   });
 
-  const get_mime_type_archive = (value: string): string => {
+  // const get_mime_type_archive = (value: string): string => {
 
-    const split_step_one = value.split('/');
-    const split_step_two = split_step_one[1].split(';');
+  //   console.log('MIME TYPE => ', value, mime.extension(value))
 
-    return split_step_two.length > 1 ? split_step_two[0] : split_step_one[1];
+  //   const step_one = value.split(';');
 
-  }
+  //   if(step_one.length > 1) return mime.extension(step_one[0]) as string
+
+  //   return mime.extension(value) as string;
+
+  //   // const split_step_one = value.split('/');
+  //   // const split_step_two = split_step_one[1].split(';');
+
+  //   // return split_step_two.length > 1 ? split_step_two[0] : split_step_one[1];
+
+  // }
 
   return new Promise((resolve) => {
 
@@ -172,6 +191,12 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         initializerProps.onStatusChange('Connected');
 
         resolve({
+
+          async diconnect_database(): Promise<void> {
+
+            await connection_database.destroy()
+
+          },
 
           async replyMessage(number: string, content: string, quotedId: string): Promise<proto.WebMessageInfo> {
 

@@ -1,5 +1,4 @@
-import knex, { Knex } from "knex";
-import { AndromedaStorageConnection } from "./Dtos/interface";
+import { Knex } from "knex";
 import fs from 'fs';
 import path from 'path';
 import { MessageUpsertType, proto, WAMessage, getDevice } from "@adiwajshing/baileys";
@@ -11,8 +10,9 @@ export class AndromedaStorage {
   private LimitMemoryStorage: number;
   private basePath: string;
 
-  constructor (ConnectionProps: AndromedaStorageConnection, settings: { pathStorage: string }) {
+  constructor (connection_database: Knex<any, unknown[]>, settings: { pathStorage: string }) {
 
+    this.Connection = connection_database;
     this.LimitMemoryStorage = 500;
     this.basePath = settings.pathStorage;
 
@@ -42,16 +42,6 @@ export class AndromedaStorage {
       this.CounterInsters = 0;
 
     }
-
-    this.Connection = knex({
-      client: 'mysql2',
-      connection: {
-        host: ConnectionProps.host,
-        password: ConnectionProps.pass,
-        database: ConnectionProps.dbname,
-        user: ConnectionProps.user
-      }
-    });
 
     this.Connection.schema.hasTable('andromeda_storage').then((exists) => {
       
