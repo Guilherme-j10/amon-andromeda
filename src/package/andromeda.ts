@@ -32,7 +32,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       database: initializerProps?.connectionStorage?.dbname || '',
       user: initializerProps?.connectionStorage?.user || ''
     }
-  });;
+  });
 
   if (Object.keys(initializerProps.connectionStorage || {}).length) {
 
@@ -232,7 +232,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
               if (isGif) optionsMedia.gifPlayback = true;
 
-              if (content) optionsMedia.caption = content;
+              if ((content || '').length) optionsMedia.caption = content;
 
               const sendMediaMessage = await socket.sendMessage(`${number}${normalPrefix}`, optionsMedia);
 
@@ -367,7 +367,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
                 }
               };
 
-              if (content) optionsSenMessage.caption = content;
+              if ((content || '').length) optionsSenMessage.caption = content;
 
               const sendImage = await socket.sendMessage(`${number}${normalPrefix}`, optionsSenMessage);
 
