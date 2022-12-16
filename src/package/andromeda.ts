@@ -140,7 +140,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       const file_name = `${v4()}.jpeg`;
       ffmpeg(archive_path).screenshot({
         count: 1,
-        timestamps: ['00:01.000'],
+        timestamps: ['00:00.000'],
         size: '40x72',
         folder: initializerProps.downloadMediaPath,
         filename: file_name
