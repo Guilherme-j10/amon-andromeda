@@ -10,6 +10,8 @@ import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
 import mime from 'mime-types';
 import knex from "knex";
+import jimp from 'jimp';
+import ffmpeg from 'fluent-ffmpeg';
 
 const logger = MAINLOGGER.child({});
 logger.level = 'silent';
@@ -132,22 +134,18 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   });
 
-  // const get_mime_type_archive = (value: string): string => {
-
-  //   console.log('MIME TYPE => ', value, mime.extension(value))
-
-  //   const step_one = value.split(';');
-
-  //   if(step_one.length > 1) return mime.extension(step_one[0]) as string
-
-  //   return mime.extension(value) as string;
-
-  //   // const split_step_one = value.split('/');
-  //   // const split_step_two = split_step_one[1].split(';');
-
-  //   // return split_step_two.length > 1 ? split_step_two[0] : split_step_one[1];
-
-  // }
+  // for this work on system -> sudo apt install ffmpeg
+  const generate_video_thumbnail = async (archive_path: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const file_name = `${v4()}.jpeg`;
+      ffmpeg(archive_path).screenshot({
+        count: 1,
+        size: '40x72',
+        folder: initializerProps.downloadMediaPath,
+        filename: file_name
+      }).on('end', () => resolve(file_name))
+    })
+  }
 
   return new Promise((resolve) => {
 
@@ -226,8 +224,12 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
+              const generate_videothumb = await generate_video_thumbnail(mediaPath);
+              const thumbnail_path = `${initializerProps.downloadMediaPath}/${generate_videothumb}`;
+
               const optionsMedia: AnyMessageContent = {
-                video: fs.readFileSync(mediaPath)
+                video: fs.readFileSync(mediaPath),
+                jpegThumbnail: fs.readFileSync(thumbnail_path, { encoding: 'base64' })
               }
 
               if (isGif) optionsMedia.gifPlayback = true;
@@ -239,6 +241,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               if (typeof sendMediaMessage === 'undefined') throw { message: 'Not was possible send video or gif now.' }
 
               if (haveConnectionProps) StorageInitializer.saveMessageInStorage({ type: 'notify', messages: [sendMediaMessage] });
+
+              fs.unlinkSync(path.resolve(thumbnail_path));
 
               return sendMediaMessage;
 
@@ -262,7 +266,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
               return send_media_message as proto.WebMessageInfo;
 
-            } catch {  return {} as proto.WebMessageInfo }
+            } catch { return {} as proto.WebMessageInfo }
 
           },
 
@@ -361,10 +365,15 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
+              const thumb_image_data = await jimp.read(imagePath);
+              thumb_image_data.resize(40, 72);
+              const thumbnail_complete = await thumb_image_data.getBase64Async('image/jpeg');
+
               const optionsSenMessage: AnyMessageContent = {
                 image: {
-                  url: imagePath
-                }
+                  url: imagePath,
+                },
+                jpegThumbnail: thumbnail_complete.split(',')[1]
               };
 
               if ((content || '').length) optionsSenMessage.caption = content;

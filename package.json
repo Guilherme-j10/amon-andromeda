@@ -1,6 +1,6 @@
 {
   "name": "amon-andromeda",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Andromeda is a Baileys-based lib, designed to be an easy abstraction of Baileys. Clear and concise, easy-to-use methods with a quick boot setup.",
   "main": "dist/index.js",
   "license": "GPL",
@@ -11,6 +11,7 @@
   ],
   "devDependencies": {
     "@types/ffmpeg": "^1.0.4",
+    "@types/fluent-ffmpeg": "^2.1.20",
     "@types/mime-types": "^2.1.1",
     "@types/qrcode": "^1.4.2",
     "ts-node-dev": "^2.0.0",
@@ -26,6 +27,8 @@
   "dependencies": {
     "@adiwajshing/baileys": "^4.4.0",
     "@hapi/boom": "^10.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "jimp": "^0.16.2",
     "knex": "^2.2.0",
     "link-preview-js": "^3.0.0",
     "mime-types": "^2.1.35",

@@ -5,7 +5,7 @@ import path from 'path';
   
   const SessionName = 'teste';
 
-  const video_path = path.resolve(__dirname, '.', 'media', '2a7eef13-c77c-48b7-b5ba-8734d20723d5.mp4');
+  const video_path = path.resolve(__dirname, '.', 'media', 'a5c4f99c6bb24e60ec28c35a9a21618e (1).mp4');
   const image_path = path.resolve(__dirname, '.', 'image', 'teste_qrcode.png');
   const audio_path = path.resolve(__dirname, '.', 'media', '50795482-43b3-4288-a842-18ccc36a5c05.mp3');
   const text_document_path = path.resolve(__dirname, '.', 'media', 'text.txt');
@@ -28,18 +28,16 @@ import path from 'path';
   // await clientOne.sendArchive({
   //   location_path: text_document_path,
   //   file_name: 'fala mundo'
-  // }, '5511983547629');
+  // }, 'phone_number');
 
-  // const content = await clientOne.sendSimpleMessage('asdf', '5511983547629');
-
-  // console.log(content);
-
-  // const content = await clientOne.sendImage(image_path, '5511983547629', 'mesma coisa so que com conteudo')
+  //await clientOne.sendSimpleMessage('asdf', 'phone_number');
 
   // console.log(content);
 
-  //await clientOne.sendGifOrVideoMessage(video_path, '5511983547629', undefined, false)
+  // await clientOne.sendImage(image_path, 'phone_number', 'mesma coisa so que com conteudo')
 
-  //await clientOne.sendAudioMedia(audio_path, '5511983547629', false)
+  // await clientOne.sendGifOrVideoMessage(video_path, 'phone_number', undefined, false)
+
+  //await clientOne.sendAudioMedia(audio_path, 'phone_number', false)
 
 })()
