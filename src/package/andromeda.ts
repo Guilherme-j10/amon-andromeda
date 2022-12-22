@@ -369,7 +369,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
               const thumb_image_data = await jimp.read(imagePath);
-              thumb_image_data.resize(40, jimp.AUTO);
+              thumb_image_data.resize(40, 72);
               const thumbnail_complete = await thumb_image_data.getBase64Async('image/jpeg');
 
               const optionsSenMessage: AnyMessageContent = {
