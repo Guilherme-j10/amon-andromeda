@@ -150,6 +150,19 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     })
   }
 
+  const aspectRatio = (width_value: number, width: number, height: number) => {
+
+    const isHorizontal = width > height;
+    const aspect_ratio = isHorizontal ? width / height : height / width;
+    const height_apect_ratio = isHorizontal ? width_value / aspect_ratio : width_value * aspect_ratio;
+
+    return {
+      width: width_value,
+      height: height_apect_ratio
+    }
+  
+  }
+
   return new Promise((resolve) => {
 
     socket.ev.on('connection.update', async (update) => {
@@ -369,7 +382,10 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
               const thumb_image_data = await jimp.read(imagePath);
-              thumb_image_data.resize(40, 72);
+
+              const apspect_ratio = aspectRatio(40, thumb_image_data.getWidth(), thumb_image_data.getHeight());
+
+              thumb_image_data.resize(apspect_ratio.width, apspect_ratio.height);
               const thumbnail_complete = await thumb_image_data.getBase64Async('image/jpeg');
 
               const optionsSenMessage: AnyMessageContent = {
