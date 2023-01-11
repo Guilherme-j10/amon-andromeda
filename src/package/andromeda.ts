@@ -61,7 +61,15 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   });
 
+  socket.ev.on('presence.update', json => {
+    if (typeof initializerProps.onPresenceUpdate === 'function') {
+      initializerProps.onPresenceUpdate(json)
+    }
+  })
+
   socket.ev.on('messages.upsert', async (message) => {
+
+    //console.log(message);
 
     if (message.type === 'notify') {
 
@@ -160,7 +168,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       width: width_value,
       height: height_apect_ratio
     }
-  
+
   }
 
   return new Promise((resolve) => {
@@ -497,6 +505,12 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
             } catch { return {} as proto.WebMessageInfo; }
 
           },
+
+          async subscribe_precense(number: string): Promise<void> {
+
+            await socket.presenceSubscribe(`${number}${normalPrefix}`);
+
+          }
 
         })
 

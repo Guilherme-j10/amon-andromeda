@@ -21,9 +21,13 @@ import path from 'path';
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,
     onStatusChange: (connectionStatus) => console.log(connectionStatus),
+    onPresenceUpdate: (presence) => console.log(presence),
     onMessage: (message) => console.log(JSON.stringify(message, undefined, 2)),
     onDisconnected: () => console.log('disconectou')
   });
+
+  // await clientOne.subscribe_precense('551170707070');
+  // await clientOne.subscribe_precense('551170707070');
 
   // await clientOne.sendArchive({
   //   location_path: text_document_path,

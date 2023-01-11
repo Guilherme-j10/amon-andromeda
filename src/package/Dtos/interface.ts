@@ -18,6 +18,15 @@ export interface AndromedaStorageConnection {
   user: string
 }
 
+export interface PresenceUpdated {
+  id: string,
+  presences: {
+    [id: string]: {
+      lastKnownPresence: 'unavailable' | 'available' | 'composing' | 'recording' | 'paused'
+    }
+  }
+}
+
 export interface AndromedaProps {
   sessionName: string,
   qrcodoPath: string,
@@ -30,6 +39,7 @@ export interface AndromedaProps {
   IgnoreGroupsMessages: boolean,
   IgnoreServer_ACK: boolean,
   onMessage: (message: MessagesType) => void
+  onPresenceUpdate?: (presence: PresenceUpdated) => void
   onStatusChange: (connectionStatus: 'Connected' | 'WaitinLogin') => void,
   onDisconnected: () => void
 }
@@ -74,5 +84,6 @@ export interface IAndromeda {
   deleteMessageForEveryone: (number: string, messageId: string, isGroup?: boolean) => Promise<boolean>,
   sendSimpleMessage: (content: string, number: string) => Promise<proto.WebMessageInfo>,
   replyMessage: (number: string, content: string, quotedId: string) => Promise<proto.WebMessageInfo>,
-  disconnect_database: () => Promise<void>
+  disconnect_database: () => Promise<void>,
+  subscribe_precense: (number: string) => Promise<void>
 }
