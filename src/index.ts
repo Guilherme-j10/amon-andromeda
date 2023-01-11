@@ -5,6 +5,7 @@ export {
   IAndromeda,
   IExistenceOnWhatsApp, 
   IListMessageDefinitions, 
+  PresenceUpdated,
   ITypeDeviceWithMessage, 
   MessagesType 
 } from './package/Dtos/interface';
