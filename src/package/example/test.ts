@@ -1,4 +1,4 @@
-import { Andromeda } from "../andromeda";
+import { Andromeda } from "../../../dist";
 import path from 'path';
 
 (async () => {
