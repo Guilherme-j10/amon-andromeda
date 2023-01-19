@@ -1,4 +1,4 @@
-import { Contact, MessageUpsertType, proto } from "@adiwajshing/baileys";
+import { Contact, MessageUpsertType, proto } from "../../Baileys/src";
 
 export interface MessagesType {
   messages: proto.IWebMessageInfo[],

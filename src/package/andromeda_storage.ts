@@ -1,7 +1,7 @@
 import { Knex } from "knex";
 import fs from 'fs';
 import path from 'path';
-import { MessageUpsertType, proto, WAMessage, getDevice } from "@adiwajshing/baileys";
+import { MessageUpsertType, proto, WAMessage, getDevice } from "../Baileys/src";
 
 export class AndromedaStorage {
 

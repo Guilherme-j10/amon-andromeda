@@ -1,4 +1,4 @@
-import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "@adiwajshing/baileys";
+import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "../Baileys/src";
 import { Boom } from '@hapi/boom';
 import { AndromedaProps, IAndromeda, IDocumentContent, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
 import MAINLOGGER from './logger';
@@ -68,8 +68,6 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   })
 
   socket.ev.on('messages.upsert', async (message) => {
-
-    //console.log(message);
 
     if (message.type === 'notify') {
 
