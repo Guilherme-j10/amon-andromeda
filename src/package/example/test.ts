@@ -1,4 +1,4 @@
-import { Andromeda } from "../../../dist";
+import { Andromeda } from "../../index";
 import path from 'path';
 
 (async () => {
@@ -26,7 +26,7 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
-  await clientOne.sendSimpleMessage('ola mundo', '551170707070');
+  // await clientOne.sendSimpleMessage('ola mundo', '551170707070');
 
   // await clientOne.subscribe_precense('551170707070');
   // await clientOne.subscribe_precense('551170707070');

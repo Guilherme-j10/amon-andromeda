@@ -90,7 +90,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         if (message.messages) {
 
           const typesMediaMessage = ['imageMessage', 'audioMessage', 'videoMessage', 'documentMessage', 'stickerMessage'];
-          const messageType = Object.keys(message.messages[0]?.message as {} || message.messages['documentWithCaptionMessage'].message as {} || {})[0];
+          const messageType = Object.keys(message.messages[0].message?.documentWithCaptionMessage?.message || message.messages[0]?.message || {})[0];
 
           if (typesMediaMessage.includes(messageType)) {
 
@@ -112,7 +112,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
             }
 
-            const mimetypeFile = message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
+            const mimetypeFile = message.messages[0].message?.documentWithCaptionMessage?.message?.documentMessage?.mimetype || message.messages[0].message?.[messageType as keyof proto.IMessage]?.['mimetype' as keyof {}] as unknown as string;
 
             filename = `${v4()}.${mime.extension(mimetypeFile)}`;
 
