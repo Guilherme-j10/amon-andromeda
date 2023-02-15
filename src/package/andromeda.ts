@@ -90,7 +90,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
         if (message.messages) {
 
           const typesMediaMessage = ['imageMessage', 'audioMessage', 'videoMessage', 'documentMessage', 'stickerMessage'];
-          const messageType = Object.keys(message.messages[0]?.message as {} || {})[0];
+          const messageType = Object.keys(message.messages[0]?.message as {} || message.messages['documentWithCaptionMessage'].message as {} || {})[0];
 
           if (typesMediaMessage.includes(messageType)) {
 
