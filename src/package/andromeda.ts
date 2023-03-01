@@ -36,6 +36,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     }
   });
 
+
   if (Object.keys(initializerProps.connectionStorage || {}).length) {
 
     StorageInitializer = new AndromedaStorage(connection_database, {
@@ -44,7 +45,9 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   }
 
-  const { state, saveCreds } = await useMultiFileAuthState(`SessionAndromeda_${initializerProps.sessionName}`);
+  const { state, saveCreds } = await useMultiFileAuthState(
+    path.resolve(__dirname, '..', '..', 'sessions', `SessionAndromeda_${initializerProps.sessionName}`)
+  );
 
   const presetToSocket: UserFacingSocketConfig = {
     printQRInTerminal: initializerProps.qrCodeInTerminal,
@@ -198,8 +201,8 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         }
 
-        fs.rmSync(path.resolve(__dirname, '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
-        fs.rmSync(path.resolve(__dirname, '..', '..', '..', '..', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
+        fs.rmSync(path.resolve(__dirname, '..', '..', 'sessions', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
+        fs.rmSync(path.resolve(__dirname, '..', '..', '..', '..', 'sessions', `SessionAndromeda_${initializerProps.sessionName}`), { force: true, recursive: true });
 
         initializerProps.onDisconnected();
 

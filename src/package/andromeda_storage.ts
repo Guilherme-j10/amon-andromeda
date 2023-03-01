@@ -140,7 +140,7 @@ export class AndromedaStorage {
 
     fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), '[]');
 
-    let dataRows = [];
+    let dataRows = [] as any[];
 
     for(let message of dataMessages) {
 
