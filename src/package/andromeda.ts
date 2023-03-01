@@ -46,7 +46,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   }
 
   const { state, saveCreds } = await useMultiFileAuthState(
-    path.resolve(__dirname, '..', '..', 'sessions', `SessionAndromeda_${initializerProps.sessionName}`)
+    path.join('sessions', `SessionAndromeda_${initializerProps.sessionName}`)
   );
 
   const presetToSocket: UserFacingSocketConfig = {
