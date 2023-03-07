@@ -18,6 +18,7 @@ logger.level = 'silent';
 
 const normalPrefix = '@s.whatsapp.net';
 
+
 export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndromeda> => {
 
   let IS_CONNECTED = false;
@@ -58,11 +59,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   let socket = makeWASocket(presetToSocket);
 
-  socket.ev.on('connection.update', async () => {
-
-    await saveCreds();
-
-  });
+  socket.ev.on('creds.update', saveCreds);
 
   socket.ev.on('presence.update', json => {
     if (typeof initializerProps.onPresenceUpdate === 'function') {
