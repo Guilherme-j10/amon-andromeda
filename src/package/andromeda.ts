@@ -6,7 +6,7 @@ import makeWASocket, {
   useMultiFileAuthState,
   UserFacingSocketConfig,
   downloadMediaMessage
-} from "../Baileys/src";
+} from "../Core/src";
 import { Boom } from '@hapi/boom';
 import {
   AndromedaProps,

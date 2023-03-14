@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { MessageUpsertType, proto, WAMessage, getDevice } from "../Baileys/src";
+import { MessageUpsertType, proto, WAMessage, getDevice } from "../Core/src";
 import { database_connection } from "./andromeda";
 
 export class AndromedaStorage {
