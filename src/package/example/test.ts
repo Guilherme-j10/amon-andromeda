@@ -16,6 +16,12 @@ import path from 'path';
     downloadMediaPath: path.resolve(__dirname, '.', 'media'),
     qrCodeInTerminal: true,
     agentName: SessionName,
+    connectionStorage: {
+      dbname: 'cloudchat_development' as 'andromeda',
+      host: 'localhost',
+      pass: 'M3g4_c0n3c74',
+      user: 'root'
+    },
     qrcodoPath: path.resolve(__dirname, '.', 'image', `${SessionName}_qrcode.png`),
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,

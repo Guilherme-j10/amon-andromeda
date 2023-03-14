@@ -1,18 +1,16 @@
-import { Knex } from "knex";
 import fs from 'fs';
 import path from 'path';
 import { MessageUpsertType, proto, WAMessage, getDevice } from "../Baileys/src";
+import { database_connection } from "./andromeda";
 
 export class AndromedaStorage {
 
-  private Connection: Knex<any, unknown[]>;
   private CounterInsters: number;
   private LimitMemoryStorage: number;
   private basePath: string;
 
-  constructor (connection_database: Knex<any, unknown[]>, settings: { pathStorage: string }) {
+  constructor (settings: { pathStorage: string }) {
 
-    this.Connection = connection_database;
     this.LimitMemoryStorage = 500;
     this.basePath = settings.pathStorage;
 
@@ -43,11 +41,11 @@ export class AndromedaStorage {
 
     }
 
-    this.Connection.schema.hasTable('andromeda_storage').then((exists) => {
+    database_connection.schema.hasTable('andromeda_storage').then((exists) => {
       
       if(!exists) {
 
-        return this.Connection.schema.createTable('andromeda_storage', (table) => {
+        return database_connection.schema.createTable('andromeda_storage', (table) => {
           table.increments('id').primary();
           table.string('message_id', 255).notNullable();
           table.string('remoteJid', 255).notNullable();
@@ -91,7 +89,7 @@ export class AndromedaStorage {
 
     }
 
-    const result = await this.Connection('andromeda_storage').select('MessageStructure').where({ remoteJid: numberId })
+    const result = await database_connection('andromeda_storage').select('MessageStructure').where({ remoteJid: numberId })
 
     if(!result.length) {
 
@@ -152,7 +150,7 @@ export class AndromedaStorage {
 
     }
 
-    await this.Connection.batchInsert('andromeda_storage', dataRows);
+    await database_connection.batchInsert('andromeda_storage', dataRows);
 
   }
 
@@ -202,7 +200,7 @@ export class AndromedaStorage {
 
     if(!Message.length) {
 
-      const messageFounded = await this.Connection('andromeda_storage').select('MessageStructure').where({ message_id: id });
+      const messageFounded = await database_connection('andromeda_storage').select('MessageStructure').where({ message_id: id });
 
       if(!messageFounded.length) throw { message: 'Not was possible found the message.' };
 

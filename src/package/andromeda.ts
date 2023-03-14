@@ -1,6 +1,20 @@
-import makeWASocket, { AnyMessageContent, Contact, DisconnectReason, proto, useMultiFileAuthState, UserFacingSocketConfig, downloadMediaMessage } from "../Baileys/src";
+import makeWASocket, {
+  AnyMessageContent,
+  Contact,
+  DisconnectReason,
+  proto,
+  useMultiFileAuthState,
+  UserFacingSocketConfig,
+  downloadMediaMessage
+} from "../Baileys/src";
 import { Boom } from '@hapi/boom';
-import { AndromedaProps, IAndromeda, IDocumentContent, IExistenceOnWhatsApp, IListMessageDefinitions } from "./Dtos/interface";
+import {
+  AndromedaProps,
+  IAndromeda,
+  IDocumentContent,
+  IExistenceOnWhatsApp,
+  IListMessageDefinitions
+} from "./Dtos/interface";
 import MAINLOGGER from './logger';
 import Qrcode from 'qrcode';
 import fs from 'fs';
@@ -9,15 +23,28 @@ import path from 'path';
 import { v4 } from 'uuid';
 import { AndromedaStorage } from "./andromeda_storage";
 import mime from 'mime-types';
-import knex from "knex";
+import knex, { Knex } from "knex";
 import jimp from 'jimp';
 import ffmpeg from 'fluent-ffmpeg';
+
+export let database_connection = {} as Knex<any, unknown[]>;
 
 const logger = MAINLOGGER.child({});
 logger.level = 'silent';
 
 const normalPrefix = '@s.whatsapp.net';
 
+const verify_connection_database = async (): Promise<boolean> => {
+  return new Promise(async (resolve) => {
+
+    if (!Object.keys(database_connection).length) return resolve(false);
+
+    database_connection.raw('select 1+1 as result')
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+
+  })
+}
 
 export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndromeda> => {
 
@@ -27,20 +54,25 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
   let StorageInitializer: AndromedaStorage;
   const haveConnectionProps = Object.keys(initializerProps.connectionStorage || {}).length;
 
-  const connection_database = knex({
-    client: 'mysql2',
-    connection: {
-      host: initializerProps?.connectionStorage?.host || '',
-      password: initializerProps?.connectionStorage?.pass || '',
-      database: initializerProps?.connectionStorage?.dbname || '',
-      user: initializerProps?.connectionStorage?.user || ''
-    }
-  });
+  const database_is_connected = await verify_connection_database();
 
+  if (!database_is_connected) {
+
+    database_connection = knex({
+      client: 'mysql2',
+      connection: {
+        host: initializerProps?.connectionStorage?.host || '',
+        password: initializerProps?.connectionStorage?.pass || '',
+        database: initializerProps?.connectionStorage?.dbname || '',
+        user: initializerProps?.connectionStorage?.user || ''
+      }
+    });
+
+  }
 
   if (Object.keys(initializerProps.connectionStorage || {}).length) {
 
-    StorageInitializer = new AndromedaStorage(connection_database, {
+    StorageInitializer = new AndromedaStorage({
       pathStorage: initializerProps.TemporaryStoragePath
     });
 
@@ -214,7 +246,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
           async disconnect_database(): Promise<void> {
 
-            await connection_database.destroy()
+            await database_connection.destroy()
 
           },
 
