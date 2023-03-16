@@ -86,6 +86,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     printQRInTerminal: initializerProps.qrCodeInTerminal,
     logger: logger,
     auth: state,
+    defaultQueryTimeoutMs: undefined,
     browser: [initializerProps.agentName ? initializerProps.agentName : 'Andromeda', 'MacOS', '3.0']
   };
 
