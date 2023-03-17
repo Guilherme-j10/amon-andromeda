@@ -1,4 +1,4 @@
-import { Contact, MessageUpsertType, proto } from "../../Core/src";
+import { Contact, MessageUpsertType, proto, WAPresence } from "../../Core/src";
 
 export interface MessagesType {
   messages: proto.IWebMessageInfo[],
@@ -85,5 +85,7 @@ export interface IAndromeda {
   sendSimpleMessage: (content: string, number: string) => Promise<proto.WebMessageInfo>,
   replyMessage: (number: string, content: string, quotedId: string) => Promise<proto.WebMessageInfo>,
   disconnect_database: () => Promise<void>,
-  subscribe_precense: (number: string) => Promise<void>
+  subscribe_precense: (number: string) => Promise<void>,
+  read_message: (data: proto.IMessageKey[]) => Promise<boolean>,
+  presenceUpdate: (type: WAPresence, toJid?: string) => Promise<boolean>
 }

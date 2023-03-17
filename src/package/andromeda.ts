@@ -5,7 +5,8 @@ import makeWASocket, {
   proto,
   useMultiFileAuthState,
   UserFacingSocketConfig,
-  downloadMediaMessage
+  downloadMediaMessage,
+  WAPresence
 } from "../Core/src";
 import { Boom } from '@hapi/boom';
 import {
@@ -248,6 +249,36 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
           async disconnect_database(): Promise<void> {
 
             await database_connection.destroy()
+
+          },
+
+          async presenceUpdate(type: WAPresence, toJid?: string): Promise<boolean> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' }
+
+              await socket.sendPresenceUpdate(type, `${toJid}${normalPrefix}`)
+
+              return true;
+
+            } catch { return false };
+
+          },
+
+          async read_message(data: proto.IMessageKey[]): Promise<boolean> {
+
+            try {
+
+              if (!IS_CONNECTED) throw { message: 'Connection is closed.' }
+
+              const messages = data.map(remotes => ({ ...remotes, remoteJid: `${remotes.remoteJid}${normalPrefix}` }));
+
+              await socket.readMessages(messages);
+
+              return true;
+
+            } catch { return false };
 
           },
 

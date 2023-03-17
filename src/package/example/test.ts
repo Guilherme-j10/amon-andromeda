@@ -32,6 +32,9 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
+  //await clientOne.read_message([{ remoteJid: '5511993335309', id: 'F4D0A47B10BCB5950791BC2E0FC0A539' }])
+  //await clientOne.presenceUpdate('paused', '5511993335309');
+
   // await clientOne.sendSimpleMessage('ola mundo', '551170707070');
 
   // await clientOne.subscribe_precense('551170707070');
