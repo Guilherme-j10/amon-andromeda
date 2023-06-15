@@ -11,6 +11,7 @@ import makeWASocket, {
 import { Boom } from '@hapi/boom';
 import {
   AndromedaProps,
+  AvaliablePresences,
   IAndromeda,
   IDocumentContent,
   IExistenceOnWhatsApp,
@@ -170,6 +171,22 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
       initializerProps.onMessage(message_content);
 
+      const messages_to_read = [] as any[];
+
+      for (const message of message_content.messages) {
+
+        const content_to_read_message = {
+          remoteJid: message.key.remoteJid,
+          id: message.key.id,
+          participant: undefined
+        };
+
+        messages_to_read.push(content_to_read_message);
+
+      }
+
+      socket.readMessages(messages_to_read);
+
       if (haveConnectionProps) StorageInitializer.saveMessageInStorage(message_content);
 
     }
@@ -249,6 +266,13 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
           async disconnect_database(): Promise<void> {
 
             await database_connection.destroy()
+
+          },
+
+          async sendPresence(presence: AvaliablePresences, number: string): Promise<boolean> {
+
+            await socket.sendPresenceUpdate(presence, `${number}${normalPrefix}`);
+            return true;
 
           },
 

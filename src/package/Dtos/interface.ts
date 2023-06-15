@@ -69,6 +69,8 @@ export interface IDocumentContent {
   file_name: string
 }
 
+export type AvaliablePresences = 'unavailable' | 'available' | 'composing' | 'recording' | 'paused';
+
 export interface IAndromeda {
   verifyExistenceNumber: (number: string) => Promise<IExistenceOnWhatsApp>,
   sendGifOrVideoMessage: (mediaPath: string, number: string, content?: string, isGif?: boolean) => Promise<proto.WebMessageInfo>,
@@ -88,4 +90,5 @@ export interface IAndromeda {
   subscribe_precense: (number: string) => Promise<void>,
   read_message: (data: proto.IMessageKey[]) => Promise<boolean>,
   presenceUpdate: (type: WAPresence, toJid?: string) => Promise<boolean>
+  sendPresence: (precense: AvaliablePresences, number: string) => Promise<boolean>
 }
