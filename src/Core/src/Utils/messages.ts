@@ -488,6 +488,22 @@ export const generateWAMessageContent = async(
 		m[messageType].contextInfo.mentionedJid = message.mentions
 	}
 
+	if('edit' in message) {
+		m = {
+			protocolMessage: {
+				key: message.edit,
+				editedMessage: m,
+				type: WAProto.Message.ProtocolMessage.Type.MESSAGE_EDIT
+			}
+		}
+	}
+
+	if('contextInfo' in message && !!message.contextInfo) {
+		const [messageType] = Object.keys(m)
+		m[messageType] = m[messageType] || {}
+		m[messageType].contextInfo = message.contextInfo
+	}
+
 	return WAProto.Message.fromObject(m)
 }
 
@@ -738,7 +754,7 @@ export function getAggregateVotesInPollMessage(
 	{ message, pollUpdates }: Pick<WAMessage, 'pollUpdates' | 'message'>,
 	meId?: string
 ) {
-	const opts = message?.pollCreationMessage?.options || []
+	const opts = message?.pollCreationMessage?.options || message?.pollCreationMessageV2?.options || message?.pollCreationMessageV3?.options || []
 	const voteHashMap = opts.reduce((acc, opt) => {
 		const hash = sha256(Buffer.from(opt.optionName || '')).toString()
 		acc[hash] = {

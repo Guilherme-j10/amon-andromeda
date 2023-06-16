@@ -1,5 +1,4 @@
 import { AxiosRequestConfig } from 'axios'
-import type NodeCache from 'node-cache'
 import type { Logger } from 'pino'
 import type { Readable } from 'stream'
 import type { URL } from 'url'
@@ -19,9 +18,9 @@ export type WATextMessage = proto.Message.IExtendedTextMessage
 export type WAContextInfo = proto.IContextInfo
 export type WALocationMessage = proto.Message.ILocationMessage
 export type WAGenericMediaMessage = proto.Message.IVideoMessage | proto.Message.IImageMessage | proto.Message.IAudioMessage | proto.Message.IDocumentMessage | proto.Message.IStickerMessage
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStubType = proto.WebMessageInfo.StubType
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStatus = proto.WebMessageInfo.Status
 export type WAMediaUpload = Buffer | { url: URL | string } | { stream: Readable }
 /** Set of message types that are supported by the library */
@@ -53,9 +52,14 @@ type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
     mentions?: string[]
 }
+type Contextable = {
+    /** add contextInfo to the message */
+    contextInfo?: proto.IContextInfo
+}
 type ViewOnce = {
     viewOnce?: boolean
 }
+
 type Buttonable = {
     /** add buttons to the message  */
     buttons?: proto.Message.ButtonsMessage.IButton[]
@@ -65,6 +69,9 @@ type Templatable = {
     templateButtons?: proto.IHydratedTemplateButton[]
 
     footer?: string
+}
+type Editable = {
+  edit?: WAMessageKey
 }
 type Listable = {
     /** Sections of the List */
@@ -95,13 +102,13 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Buttonable & Templatable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
         gifPlayback?: boolean
         jpegThumbnail?: string
-    } & Mentionable & Buttonable & Templatable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & WithDimensions)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -117,8 +124,8 @@ export type AnyMediaMessageContent = (
         mimetype: string
         fileName?: string
         caption?: string
-    } & Buttonable & Templatable))
-    & { mimetype?: string }
+    } & Contextable & Buttonable & Templatable))
+    & { mimetype?: string } & Editable
 
 export type ButtonReplyInfo = {
     displayText: string
@@ -135,11 +142,11 @@ export type AnyRegularMessageContent = (
 	    text: string
         linkPreview?: WAUrlInfo | null
     }
-    & Mentionable & Buttonable & Templatable & Listable)
+    & Mentionable & Contextable & Buttonable & Templatable & Listable & Editable)
     | AnyMediaMessageContent
     | ({
         poll: PollMessageOptions
-    } & Mentionable & Buttonable & Templatable)
+    } & Mentionable & Contextable & Buttonable & Templatable & Editable)
     | {
         contacts: {
             displayName?: string
