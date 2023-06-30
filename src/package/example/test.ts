@@ -22,7 +22,7 @@ import path from 'path';
     //   pass: 'M3g4_c0n3c74',
     //   user: 'root'
     // },
-    qrcodoPath: path.resolve(__dirname, '.', 'image', `${SessionName}_qrcode.png`),
+    qrcodePath: path.resolve(__dirname, '.', 'image', `${SessionName}_qrcode.png`),
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,

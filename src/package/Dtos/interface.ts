@@ -29,7 +29,7 @@ export interface PresenceUpdated {
 
 export interface AndromedaProps {
   sessionName: string,
-  qrcodoPath: string,
+  qrcodePath: string,
   agentName?: string,
   qrCodeInTerminal: boolean,
   downloadMediaPath: string,

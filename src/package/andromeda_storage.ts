@@ -9,14 +9,14 @@ export class AndromedaStorage {
   private LimitMemoryStorage: number;
   private basePath: string;
 
-  constructor (settings: { pathStorage: string }) {
+  constructor(settings: { pathStorage: string }) {
 
     this.LimitMemoryStorage = 500;
     this.basePath = settings.pathStorage;
 
-    if(fs.existsSync(this.basePath)) {
+    if (fs.existsSync(this.basePath)) {
 
-      if(fs.existsSync(path.resolve(this.basePath, `MessageStorage.json`))) {
+      if (fs.existsSync(path.resolve(this.basePath, `MessageStorage.json`))) {
 
         this.CounterInsters = (
           JSON.parse(
@@ -25,12 +25,12 @@ export class AndromedaStorage {
             ) as unknown as string
           ) as unknown as { id: string, message: proto.IWebMessageInfo }[]
         ).length;
-  
+
       } else {
-  
+
         fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), '[]');
         this.CounterInsters = 0;
-  
+
       }
 
     } else {
@@ -42,8 +42,8 @@ export class AndromedaStorage {
     }
 
     database_connection.schema.hasTable('andromeda_storage').then((exists) => {
-      
-      if(!exists) {
+
+      if (!exists) {
 
         return database_connection.schema.createTable('andromeda_storage', (table) => {
           table.increments('id').primary();
@@ -58,7 +58,7 @@ export class AndromedaStorage {
 
   }
 
-  async getTypeDevice (numberId: string): Promise<string> {
+  async getTypeDevice(numberId: string): Promise<string> {
 
     const dataMessages = JSON.parse(
       fs.readFileSync(
@@ -67,12 +67,12 @@ export class AndromedaStorage {
     ) as unknown as { id: string, message: proto.WebMessageInfo }[];
 
     let MessageFound = '';
-      
+
     let TypeDeviceOcorrence = { web: 0, android: 0, ios: 0 };
 
-    for(let content of dataMessages) {
+    for (let content of dataMessages) {
 
-      if(content.message.key.remoteJid === numberId) {
+      if (content.message.key.remoteJid === numberId) {
 
         const typefound = getDevice(content.message.key.id as string);
         TypeDeviceOcorrence[typefound]++;
@@ -81,9 +81,9 @@ export class AndromedaStorage {
 
     }
 
-    if(TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
+    if (TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
 
-      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web'; 
+      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web';
 
       return MessageFound;
 
@@ -91,15 +91,15 @@ export class AndromedaStorage {
 
     const result = await database_connection('andromeda_storage').select('MessageStructure').where({ remoteJid: numberId })
 
-    if(!result.length) {
+    if (!result.length) {
 
-      if(MessageFound === 'web') MessageFound = 'android';
+      if (MessageFound === 'web') MessageFound = 'android';
 
       return !Array.from(MessageFound).length ? 'android' : MessageFound;
 
     };
 
-    for(let msg of result) {
+    for (let msg of result) {
 
       let message = JSON.parse(msg.MessageStructure) as unknown as proto.WebMessageInfo;
 
@@ -108,7 +108,7 @@ export class AndromedaStorage {
 
     }
 
-    if(!TypeDeviceOcorrence.android || !TypeDeviceOcorrence.ios) {
+    if (!TypeDeviceOcorrence.android || !TypeDeviceOcorrence.ios) {
 
       MessageFound = 'android';
 
@@ -116,9 +116,9 @@ export class AndromedaStorage {
 
     }
 
-    if(TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
+    if (TypeDeviceOcorrence.android > 0 || TypeDeviceOcorrence.ios > 0) {
 
-      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web'; 
+      MessageFound = TypeDeviceOcorrence.android > TypeDeviceOcorrence.ios ? 'android' : TypeDeviceOcorrence.ios > TypeDeviceOcorrence.android ? 'ios' : 'web';
 
     }
 
@@ -126,7 +126,7 @@ export class AndromedaStorage {
 
   }
 
-  async SaveDataInDataBase (): Promise<void> {
+  async SaveDataInDataBase(): Promise<void> {
 
     this.CounterInsters = 0;
 
@@ -140,7 +140,7 @@ export class AndromedaStorage {
 
     let dataRows = [] as any[];
 
-    for(let message of dataMessages) {
+    for (let message of dataMessages) {
 
       dataRows.push({
         message_id: message.id,
@@ -154,40 +154,48 @@ export class AndromedaStorage {
 
   }
 
-  saveMessageInStorage (data: { messages: proto.IWebMessageInfo[]; type: MessageUpsertType; }): void {
+  saveMessageInStorage(data: { messages: proto.IWebMessageInfo[]; type: MessageUpsertType; }): void {
 
-    let structure = [] as { id: string, message: proto.IWebMessageInfo }[];
+    try {
 
-    structure = JSON.parse(
-      fs.readFileSync(
-        path.resolve(this.basePath, `MessageStorage.json`)
-      ) as unknown as string
-    ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
+      let structure = [] as { id: string, message: proto.IWebMessageInfo }[];
 
-    for(let msg of data.messages) {
+      structure = JSON.parse(
+        fs.readFileSync(
+          path.resolve(this.basePath, `MessageStorage.json`)
+        ) as unknown as string
+      ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
 
-      structure.push({
-        id: msg.key.id as string,
-        message: msg
-      })
+      for (let msg of data.messages) {
 
-    }
+        structure.push({
+          id: msg.key.id as string,
+          message: msg
+        })
 
-    this.CounterInsters++;
+      }
 
-    fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), JSON.stringify(structure));
+      this.CounterInsters++;
 
-    structure = [];
+      fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), JSON.stringify(structure));
 
-    if(this.CounterInsters >= this.LimitMemoryStorage) {
+      structure = [];
 
-      this.SaveDataInDataBase();
+      if (this.CounterInsters >= this.LimitMemoryStorage) {
+
+        this.SaveDataInDataBase();
+
+      }
+
+    } catch (error) {
+
+      fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), '[]');
 
     }
 
   }
 
-  async getMessageFromFakestorage (id: string): Promise<WAMessage> {
+  async getMessageFromFakestorage(id: string): Promise<WAMessage> {
 
     let structure = [] as { id: string, message: proto.IWebMessageInfo }[];
 
@@ -195,21 +203,21 @@ export class AndromedaStorage {
       fs.readFileSync(path.resolve(this.basePath, `MessageStorage.json`)
       ) as unknown as string
     ) as unknown as { id: string, message: proto.IWebMessageInfo }[];
-  
+
     let Message = structure.filter(val => val.id === id);
 
-    if(!Message.length) {
+    if (!Message.length) {
 
       const messageFounded = await database_connection('andromeda_storage').select('MessageStructure').where({ message_id: id });
 
-      if(!messageFounded.length) throw { message: 'Not was possible found the message.' };
+      if (!messageFounded.length) throw { message: 'Not was possible found the message.' };
 
       Message = [{ id: '', message: JSON.parse(messageFounded[0].MessageStructure) }];
 
     }
-  
+
     return Message[0].message;
-  
+
   }
 
 }

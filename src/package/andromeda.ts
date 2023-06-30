@@ -230,7 +230,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
       if (update.qr) {
 
-        Qrcode.toFile(initializerProps.qrcodoPath, update.qr)
+        Qrcode.toFile(initializerProps.qrcodePath, update.qr)
 
       }
 
