@@ -586,7 +586,6 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
               const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
-              console.log(sendMessage);
 
               if (typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
 
