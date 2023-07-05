@@ -200,6 +200,12 @@ export type MessageRelayOptions = MinimalRelayOptions & {
     useUserDevicesCache?: boolean
 }
 
+export type SendMessageMediaOptions = {
+    audioMessage?: {
+        seconds?: number
+    }
+}
+
 export type MiscMessageGenerationOptions = MinimalRelayOptions & {
     /** optional, if you want to manually set the timestamp of the message */
 	timestamp?: Date

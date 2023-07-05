@@ -64,7 +64,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
       client: 'mysql2',
       connection: {
         host: initializerProps?.connectionStorage?.host || '',
-        password: initializerProps?.connectionStorage?.pass || '',
+        password: initializerProps?.connectionStorage?.pass || '',  
         database: initializerProps?.connectionStorage?.dbname || '',
         user: initializerProps?.connectionStorage?.user || ''
       }
@@ -89,7 +89,6 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     logger: logger,
     auth: state,
     keepAliveIntervalMs: 60_000,
-    //markOnlineOnConnect: true,
     defaultQueryTimeoutMs: undefined,
     browser: [initializerProps.agentName ? initializerProps.agentName : 'Andromeda', 'MacOS', '3.0']
   };
@@ -396,7 +395,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
           },
 
-          async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean): Promise<proto.WebMessageInfo> {
+          async sendAudioMedia(audioPath: string, number: string, isPtt?: boolean, seconds?: number): Promise<proto.WebMessageInfo> {
 
             try {
 
@@ -412,7 +411,11 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
                 },
                 ptt: isPtt ? isPtt : false,
                 mimetype: device === 'android' ? 'audio/mp4' : 'audio/mpeg'
-              });
+              }, undefined, seconds ? {
+                audioMessage: {
+                  seconds: seconds
+                }
+              } : undefined);
 
               if (typeof sendAudioMedia === 'undefined') throw { message: 'Not was possible send audio media.' }
 
@@ -583,6 +586,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
               if (!IS_CONNECTED) throw { message: 'Connection is closed.' };
 
               const sendMessage = await socket.sendMessage(`${number}${normalPrefix}`, { text: content });
+              console.log(sendMessage);
 
               if (typeof sendMessage === 'undefined') throw { message: 'Not was possible send this message' }
 
