@@ -88,7 +88,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     printQRInTerminal: initializerProps.qrCodeInTerminal,
     logger: logger,
     auth: state,
-    syncFullHistory: true,
+    //syncFullHistory: true,
     keepAliveIntervalMs: 60_000,
     //defaultQueryTimeoutMs: 80_000,
     markOnlineOnConnect: false,

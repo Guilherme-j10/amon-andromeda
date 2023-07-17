@@ -177,7 +177,7 @@ export class AndromedaStorage {
 
       this.CounterInsters++;
 
-      fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), JSON.stringify(structure));
+      fs.writeFileSync(path.resolve(this.basePath, `MessageStorage.json`), JSON.stringify((structure?.length || 0) ? structure : []));
 
       structure = [];
 
