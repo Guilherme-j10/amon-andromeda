@@ -90,7 +90,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
     auth: state,
     //syncFullHistory: true,
     keepAliveIntervalMs: 60_000,
-    //defaultQueryTimeoutMs: 80_000,
+    defaultQueryTimeoutMs: 5_000,
     markOnlineOnConnect: false,
     browser: ['macOS', 'Safari', '13.1.2']//[initializerProps.agentName ? initializerProps.agentName : 'Andromeda', 'MacOS', '3.0']
   };

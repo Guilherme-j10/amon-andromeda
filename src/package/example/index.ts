@@ -16,7 +16,7 @@ import path from 'path';
       user: 'user'
     },
     qrCodeInTerminal: true,
-    qrcodoPath: path.resolve(__dirname, '..', '..', '..', 'image', `${SessionName}_qrcode.png`),
+    qrcodePath: path.resolve(__dirname, '..', '..', '..', 'image', `${SessionName}_qrcode.png`),
     IgnoreBroadCastMessages: true,
     IgnoreGroupsMessages: true,
     IgnoreServer_ACK: true,

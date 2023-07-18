@@ -31,13 +31,23 @@ import path from 'path';
     onMessage: (message) => console.log(JSON.stringify(message, undefined, 2)),
     onDisconnected: () => console.log('disconectou')
   });
-  
+
+  // const data = await clientOne.verifyExistenceNumber('')
+
+  // console.log(data);
+
   // await clientOne.sendAudioMedia(audio_path, '5511993335309', true, 3)
 
   //await clientOne.read_message([{ remoteJid: '5511993335309', id: 'F4D0A47B10BCB5950791BC2E0FC0A539' }])
   //await clientOne.presenceUpdate('paused', '5511993335309');
 
-  // await clientOne.sendSimpleMessage('ola mundo', '');
+  // const message_one = await clientOne.sendSimpleMessage('ola mundo', '');
+
+  // console.log(message_one)
+
+  // const message_tow = await clientOne.sendSimpleMessage('ola mundo', '');
+
+  // console.log(message_tow)
 
   // await clientOne.subscribe_precense('551170707070');
   // await clientOne.subscribe_precense('551170707070');

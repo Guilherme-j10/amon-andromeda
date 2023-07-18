@@ -155,7 +155,8 @@ export async function promiseTimeout<T>(ms: number | undefined, promise: (resolv
 		delay
 			.then(() => {
 				console.log('TIMEDOUT HAS OCORRED ON ANDROMEDA');
-        return process.exit(0);
+				reject(true);
+        //return process.exit(0);
 				// return reject(
 				// 	new Boom('Timed Out', {
 				// 		statusCode: DisconnectReason.timedOut,
