@@ -264,6 +264,16 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         resolve({
 
+          async phone_is_business (phone: string): Promise<boolean> {
+
+            const profile = await socket.getBusinessProfile(`${phone}${normalPrefix}`);
+
+            if (typeof profile === 'undefined') return false;
+
+            return true;
+
+          },
+
           async disconnect_database(): Promise<void> {
 
             await database_connection.destroy()

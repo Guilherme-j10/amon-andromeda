@@ -77,6 +77,7 @@ export interface IAndromeda {
   sendImage: (imagePath: string, number: string, content?: string) => Promise<proto.WebMessageInfo>,
   sendAudioMedia: (audioPath: string, number: string, isPtt?: boolean, seconds?: number) => Promise<proto.WebMessageInfo>,
   logOut: () => Promise<boolean>,
+  phone_is_business: (phone_jid: string) => Promise<boolean>,
   sendListMessage: (number: string, listMessage: IListMessageDefinitions) => Promise<proto.WebMessageInfo>,
   getDeviceInformation: () => Contact,
   sendArchive: (document: IDocumentContent, number: string) => Promise<proto.WebMessageInfo>,

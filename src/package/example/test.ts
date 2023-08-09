@@ -32,6 +32,11 @@ import path from 'path';
     onDisconnected: () => console.log('disconectou')
   });
 
+  // const device_info = clientOne.getDeviceInformation();
+  // const device_business = await clientOne.phone_is_business(device_info.id.split(':')[0]);
+
+  // console.log(device_business);
+
   // const data = await clientOne.verifyExistenceNumber('')
 
   // console.log(data);
