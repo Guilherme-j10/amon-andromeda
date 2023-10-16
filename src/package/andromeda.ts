@@ -60,14 +60,19 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
   if (!database_is_connected) {
 
+    let connection_schema: Knex.StaticConnectionConfig = {
+      host: initializerProps?.connectionStorage?.host || '',
+      password: initializerProps?.connectionStorage?.pass || '',
+      database: initializerProps?.connectionStorage?.dbname || '',
+      user: initializerProps?.connectionStorage?.user || ''
+    }
+
+    if (typeof initializerProps?.connectionStorage?.port === 'number')
+      connection_schema = { ...connection_schema, port: initializerProps?.connectionStorage?.port };
+
     database_connection = knex({
       client: 'mysql2',
-      connection: {
-        host: initializerProps?.connectionStorage?.host || '',
-        password: initializerProps?.connectionStorage?.pass || '',  
-        database: initializerProps?.connectionStorage?.dbname || '',
-        user: initializerProps?.connectionStorage?.user || ''
-      }
+      connection: connection_schema
     });
 
   }
@@ -264,7 +269,7 @@ export const Andromeda = async (initializerProps: AndromedaProps): Promise<IAndr
 
         resolve({
 
-          async phone_is_business (phone: string): Promise<boolean> {
+          async phone_is_business(phone: string): Promise<boolean> {
 
             const profile = await socket.getBusinessProfile(`${phone}${normalPrefix}`);
 

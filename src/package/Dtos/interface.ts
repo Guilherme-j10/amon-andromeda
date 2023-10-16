@@ -14,6 +14,7 @@ export interface ITypeDeviceWithMessage {
 export interface AndromedaStorageConnection {
   host: string,
   pass: string,
+  port?: number,
   dbname: 'andromeda',
   user: string
 }
