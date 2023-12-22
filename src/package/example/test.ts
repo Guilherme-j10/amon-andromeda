@@ -7,7 +7,7 @@ import path from 'path';
 
   // const video_path = path.resolve(__dirname, '.', 'media', 'a5c4f99c6bb24e60ec28c35a9a21618e (1).mp4');
   // const image_path = path.resolve(__dirname, '.', 'image', 'teste_qrcode.png');
-  const audio_path = path.resolve(__dirname, '.', 'media', '1d0e906d-00ac-4a6c-a685-cf3b84684e0c.mp3');
+  // const audio_path = path.resolve(__dirname, '.', 'media', '1d0e906d-00ac-4a6c-a685-cf3b84684e0c.mp3');
   // const text_document_path = path.resolve(__dirname, '.', 'media', 'text.txt');
 
   const clientOne = await Andromeda({
@@ -48,7 +48,7 @@ import path from 'path';
 
   // const message_one = await clientOne.sendSimpleMessage('ola mundo', '');
 
-  // console.log(message_one)
+  // console.log(JSON.stringify(message_one, undefined, 2))
 
   // const message_tow = await clientOne.sendSimpleMessage('ola mundo', '');
 
